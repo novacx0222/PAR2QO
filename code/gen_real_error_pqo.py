@@ -125,7 +125,8 @@ def gen_real_error(
     querylet_name = 'n_ci_pure'
     SINGLE_TABLE_QUERYLET = False
     """
-    global file_name_to_save_real_error
+    # global old_real_error_filename
+    global real_error_filename
     if split is not None:
         split_name_dict = {"category": "cat", "random": "random", "sliding": "sampled"}
         instance_name_dict = {"db_instance_1": "1", "db_instance_4": "4"}
@@ -216,8 +217,8 @@ def gen_real_error(
                 print(template)
                 data = cal_local_selectivity(template, template_full)
 
-            file_name_to_save_real_error = querylet_name.split('template_')[1] + '-q' + str(query_id) + '-t' + str(
-                t_id)
+            # old_real_error_filename = querylet_name.split('template_')[1] + '-q' + str(query_id) + '-t' + str(t_id)
+            real_error_filename = querylet_name.split('template_')[1]
 
             # print(template, template_full, file_name_to_save_real_error)
 
@@ -236,7 +237,7 @@ def gen_real_error(
         output_path = base_path
     output_dir = f'{output_path}{query_id}-{t_id}_{workload}/error_profile'
     os.makedirs(output_dir, exist_ok=True)
-    save_to = f'{output_dir}/{file_name_to_save_real_error}-{num}.txt'
+    save_to = f'{output_dir}/{real_error_filename}__test.txt'
     with open(save_to, 'w') as fp:
         fp.write('\n'.join(output))
     # The two-column text file is the error profile; plotting is optional.
@@ -244,10 +245,10 @@ def gen_real_error(
 
 def cal_join_selectivity(join_template, left_template, right_template, id):
     global cache_right
-    est_join_count, act_join_count = get_est_act_count(join_template)
-    est_left_count, act_left_count = get_est_act_count(left_template)
+    est_join_count, act_join_count = imdb_get_est_act_count(join_template)
+    est_left_count, act_left_count = imdb_get_est_act_count(left_template)
     if id not in cache_right.keys():
-        est_right_count, act_right_count = get_est_act_count(right_template)
+        est_right_count, act_right_count = imdb_get_est_act_count(right_template)
         cache_right[id] = [est_right_count, act_right_count]
     else:
         est_right_count, act_right_count = cache_right[id]
@@ -263,23 +264,24 @@ def cal_join_selectivity(join_template, left_template, right_template, id):
 
 
 def cal_local_selectivity(local_template, full_table_template):
-    est_count, act_count = get_est_act_count(local_template)
-    est_count_full, act_count_full = get_est_act_count(full_table_template)
+    est_count, act_count = imdb_get_est_act_count(local_template)
+    est_count_full, act_count_full = imdb_get_est_act_count(full_table_template)
     if act_count_full == 0 or est_count_full == 0:
         return False
     else:
         return [max(1, act_count) / act_count_full, max(1, est_count) / act_count_full]
 
 
-def get_est_act_count(template):
-    if db == 'imdb':
-        join_plans = get_real_latency('imdbloadbase', template, times=1, return_json=True, limit_time=False,
-                                      limit_worker=True, drop_buffer=False)
-    else:
-        join_plans = get_real_latency(db, template, times=1, return_json=True, limit_time=False, limit_worker=True,
-                                      drop_buffer=False)
+def imdb_get_est_act_count(sql_string: str):
+    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="novacx0222")
+    conn.set_session(autocommit=True)
+    cursor = conn.cursor()
 
-    join_plans = join_plans[0][0][0]['Plan']
+    est_sql_string: str = "EXPLAIN (FORMAT JSON)\n" + sql_string
+    cursor.execute(est_sql_string)
+    est_sql_result = cursor.fetchall()
+
+    join_plans = est_sql_result[0][0][0]['Plan']
     node_type = join_plans['Node Type']
     while True:
         if node_type in ['Aggregate', 'Gather', 'Sort', 'Materialize', 'Sort', 'Hash', 'Gather Merge']:
@@ -287,61 +289,21 @@ def get_est_act_count(template):
             node_type = join_plans['Node Type']
         else:
             break
-    print(join_plans)
-    est_join_count = join_plans['Plan Rows']
-    act_join_count = join_plans['Actual Rows']
-    return est_join_count, act_join_count
+    est_value = join_plans['Plan Rows']
+
+    act_sql_string: str = sql_string.replace("select * ", "select count(*) ") \
+        .replace("SELECT * ", "SELECT count(*) ")
+    cursor.execute(act_sql_string)
+    act_sql_result = cursor.fetchall()
+    act_value = act_sql_result[0][0]
+
+    print(est_value, act_value)
+
+    conn.close()
+    return [est_value, act_value]
 
 
-def plot_pdf(query_id=1, txt_file=None):
-    from sklearn.neighbors import KernelDensity
-    if txt_file:
-        with open(txt_file, 'r') as fp:
-            lines = fp.readlines()
-    else:
-        with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'r') as fp:
-            lines = fp.readlines()
-    data = [x.strip().split() for x in lines]
-    abs_error_list = []
-    cleaned_data = []
-    for x in data:
-        # if float(x[0]) > 0.001:
-        #     continue
-        # if float(x[0]) > 1 or float(x[1]) > 1 or float(x[0]) < 0 or float(x[1]) < 0:
-        #     continue
-        # else:
-        cleaned_data.append([float(x[0]) / 134170, float(x[1]) / 134170])
-    # Err = true - est
-    abs_err = [float(x[0]) - float(x[1]) for x in cleaned_data]
-    abs_err = sorted(abs_err)
-    abs_err = np.array(abs_err).reshape(-1, 1)
-    print(max(abs_err), "max abs (true-est) error")
-    print(min(abs_err), "min abs (true-est) error")
-    count_1 = 0
-    count_2 = 0
-    for i in abs_err:
-        if i > 0:
-            count_1 += 1
-        else:
-            count_2 += 1
-    print(count_1 / (count_1 + count_2), ": true>est ", count_2 / (count_1 + count_2), ": true<est")
-    kde = KernelDensity(kernel="gaussian", bandwidth=0.3).fit(abs_err)
-    # plot_error(abs_err, kde, name="data/abs-error-dsb/cn-mc_abs")
-
-    relative_error_list = []
-    for x in data:
-        if float(x[0]) == 0 or 0 == float(x[1]):
-            continue
-        relative_error_list.append(-cal_rel_error(float(x[0]), float(x[1])))
-    # print(relative_error_list)
-    relative_error_list = np.array(relative_error_list).reshape(-1, 1)
-    print(max(relative_error_list), "max rel error")
-    print(min(relative_error_list), "min rel error")
-    kde = KernelDensity(kernel="gaussian", bandwidth=1).fit(relative_error_list)
-    plot_error(relative_error_list, kde, rel_error=True, name=txt_file[:-4])
-
-
-def check_tempalte(db, querylet_name):
+def check_template(db, querylet_name):
     if not querylet(db, '', '', querylet_name):
         return False
     else:
@@ -349,9 +311,9 @@ def check_tempalte(db, querylet_name):
 
 
 def modify_table_name(inner_table, q=0, outer_table=None):
-    '''Given the exact table name in the query template, provides the table information
+    """Given the exact table name in the query template, provides the table information
         for the querylet.
-    '''
+    """
     if outer_table:  # join
         # inner_table, outer_table: table name in querylet
         # inner_table_name, outer_table_name: table name in sample.csv
