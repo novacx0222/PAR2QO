@@ -273,7 +273,7 @@ def cal_local_selectivity(local_template, full_table_template):
 
 
 def imdb_get_est_act_count(sql_string: str):
-    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="novacx0222")
+    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="hx68")
     conn.set_session(autocommit=True)
     cursor = conn.cursor()
 
