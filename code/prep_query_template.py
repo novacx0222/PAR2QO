@@ -1,9 +1,9 @@
-from prep_cardinality import get_raw_table_size, get_maps, ori_cardest
-import pandas as pd
-import numpy as np
 import copy
-import os
 import json
+import numpy as np
+import os
+import pandas as pd
+
 # import ast
 # import string
 
@@ -12,19 +12,20 @@ available_it_for_mi = ['genres'] * 13 + ['budget'] * 2 + ['release dates'] * 20 
 available_it_for_pi = ['mini biography'] * 3 + ['trivia'] * 2 + ['height'] * 1
 available_it_for_miidx = ['top 250 rank'] * 2 + ['bottom 10 rank'] * 2 + ['rating'] * 16 + ['votes'] * 11
 
-cct_for_cc_subject_id = ["IN ('cast', 'crew')"] * 4 + ["= 'cast'"] * 12 + ["!= 'complete+verified'"] * 2 
+cct_for_cc_subject_id = ["IN ('cast', 'crew')"] * 4 + ["= 'cast'"] * 12 + ["!= 'complete+verified'"] * 2
 cct_for_cc_status_id = ["= 'complete'"] * 3 + ["LIKE '%complete%'"] * 7 + [" = 'complete+verified'"] * 9
+
 
 # Function to fix that training.txt file contains double-quotes inside single quotes, which cannot be processed by ast
 def load_literal(path):
     def remove_last_comma(string):
         # Find the position of the last occurrence of "]"
         index = string.rfind(',')
-        
+
         # If "]" is found in the string
         if index != -1:
             # Slice the string to remove the last "]"
-            return string[:index] + string[index+1:]
+            return string[:index] + string[index + 1:]
         return string
 
     num_lines = int(path.split("_")[-2])
@@ -32,7 +33,7 @@ def load_literal(path):
     with open(path, 'r') as file:
         for i in range(num_lines):
             line = file.readline().strip()
-            if i == num_lines-1: line += ','    # last line does not have a comma at the end
+            if i == num_lines - 1: line += ','  # last line does not have a comma at the end
             line = remove_last_comma(line)
             line = line.strip('[]')
             elements = line.split('", "')
@@ -47,10 +48,11 @@ def load_literal(path):
             data.append(result)
     return data
 
+
 def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_path=None, sample_freq_path=None, t=None):
     np.random.seed(2024)
-    
-    if db_name == 'dsb': # simply use dsb's q gen
+
+    if db_name == 'dsb':  # simply use dsb's q gen
         sql_list = []
         folder_path = f'/winhomes/hx68/robust-vcm/query/dsb/query{query_id}_spj'
         for file_name in os.listdir(folder_path):
@@ -66,13 +68,15 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         # local_selections = pd.read_csv('/home/lsh/PARQO_backend/data/imdb-new/2/sample-all.csv')
         local_selections = pd.read_csv(sample_freq_path)
         # ['Table', 'Condition', 'Frequency']
-        condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [], 'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci':[], 'mi_idx':[], 'kt':[], 'ct':[], 'rt':[], 'cct1':[], 'cct2':[], 'chn':[]}
-    
+        condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [],
+                          'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci': [], 'mi_idx': [], 'kt': [], 'ct': [],
+                          'rt': [], 'cct1': [], 'cct2': [], 'chn': []}
+
     local_selections_grouped = local_selections.groupby('Table')
     frequency_dict = copy.deepcopy(condition_dict)
     # print(condition_dict)
     # print(frequency_dict)
-    
+
     for table in condition_dict.keys():
         if table not in local_selections['Table'].tolist(): continue
         for _, row in local_selections_grouped.get_group(table).iterrows():
@@ -101,7 +105,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         '19a': ['ci', 'cn', 'it_mi', 'mc', 'mi', 'n', 'rt', 't'],
         '18a': ['ci', 'it_mi', 'it_miidx', 'n'],
         '18-0': ['ci', 'it_mi', 'it_miidx', 'n'],
-        '17a': ['cn', 'k', 'n'], 
+        '17a': ['cn', 'k', 'n'],
         '16a': ['cn', 'k', 't'],
         '16-0': ['cn', 'k', 't', 't'],
         '15a': ['cn', 'it_mi', 'mc', 'mi', 't'],
@@ -124,7 +128,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         '1a': ['ct', 'it_miidx', 'mc']}
     with open("cached_info/query_to_local_selection_dict.json", 'r') as f:
         query_to_local_selection_dict = json.load(f)
-    
+
     if db_name == 'stats':
         query_to_local_selection_dict = {
             '18a': ['c', 'p', 'v'],
@@ -150,27 +154,23 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
             '40f': ['c', 'p', 'pl', 'ph', 'u'],
         }
 
-
-    for i, table in enumerate(query_to_local_selection_dict[str(query_id)+'-'+str(t)]):
-        
+    for i, table in enumerate(query_to_local_selection_dict[str(query_id) + '-' + str(t)]):
         total_frequency = sum(frequency_dict[table])
         probabilities = [freq / total_frequency for freq in frequency_dict[table]]
         print(i, table)
         print(condition_dict[table])
-        sampled_literals.append(np.random.choice(condition_dict[table], p=probabilities, size=K*2))
+        sampled_literals.append(np.random.choice(condition_dict[table], p=probabilities, size=K * 2))
 
     # print(sampled_literals)
-
 
     sampled_literals = np.transpose(sampled_literals).tolist()
     # Should avoid same conditions, # of parameter will change
     sampled_literals = [i for i in sampled_literals if len(set(i)) == len(i)][:K]
     if sample_path:
-
         # with open(sample_path, 'r') as file:
         #     file_content = file.read()
         # sampled_literals = ast.literal_eval(f"[{file_content.rstrip()}]")
-        sampled_literals = load_literal(sample_path)    # FIX
+        sampled_literals = load_literal(sample_path)  # FIX
         # print(len(sampled_literals))
 
     # calculate the probaility of each sample: each table is sampled independently
@@ -179,7 +179,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         for i in sampled_literals:
             p = 1
             for id, literal in enumerate(i):
-                table = query_to_local_selection_dict[query_id[:-1]+f"-{t}"][id]
+                table = query_to_local_selection_dict[query_id[:-1] + f"-{t}"][id]
                 total_frequency = sum(frequency_dict[table])
                 probabilities = [freq / total_frequency for freq in frequency_dict[table]]
                 indx = condition_dict[table].index(literal)
@@ -196,7 +196,6 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         # for _, i in enumerate(sorted_probabilities):
         #     print(i, sampled_literals[_])
 
-    
     if db_name == 'stats':
         if query_id == '18a':
             sql_list = [change_query_18a_stats(i) for i in sampled_literals]
@@ -263,15 +262,14 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
 
         return sql_list, sampled_literals
 
-
     if query_id == '1a':
         for i in sampled_literals:
             i[1] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_1a(i) for i in sampled_literals]
-    
+
     if query_id == '2a':
         sql_list = [change_query_2a(i) for i in sampled_literals]
-        
+
     if query_id == '3a':
         sql_list = [change_query_3a(i) for i in sampled_literals]
 
@@ -281,7 +279,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         sql_list = [change_query_4a(i) for i in sampled_literals]
     if query_id == '5a':
         sql_list = [change_query_5a(i) for i in sampled_literals]
-    
+
     if query_id == '6a':
         sql_list = [change_query_6a(i) for i in sampled_literals]
 
@@ -295,24 +293,23 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         sql_list = [change_query_10a(i) for i in sampled_literals]
     if query_id == '11a':
         sql_list = [change_query_11a(i) for i in sampled_literals]
-    
+
     if query_id == '12a':
         for i in sampled_literals:
             i[2] = np.random.choice(available_it_for_mi)
         sql_list = [change_query_12a(i) for i in sampled_literals]
-    
+
     if query_id == '13a':
         # Should avoid 
         for i in sampled_literals:
             i[3] = np.random.choice(available_it_for_mi)
         sql_list = [change_query_13a(i) for i in sampled_literals]
-    
+
     if query_id == '14a':
         for i in sampled_literals:
             i[0] = np.random.choice(available_it_for_mi)
             i[1] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_14a(i) for i in sampled_literals]
-
 
     if query_id == '15a':
         for i in sampled_literals:
@@ -328,12 +325,12 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
             i[1] = np.random.choice(available_it_for_mi)
             i[2] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_18a(i) for i in sampled_literals]
-    
+
     if query_id == '19a':
         for i in sampled_literals:
             i[2] = np.random.choice(available_it_for_mi)
         sql_list = [change_query_19a(i) for i in sampled_literals]
-    
+
     if query_id == '20a':
         sql_list = [change_query_20a(i) for i in sampled_literals]
 
@@ -345,7 +342,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
             i[1] = np.random.choice(available_it_for_mi)
             i[2] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_22a(i) for i in sampled_literals]
-    
+
     if query_id == '23a':
         for i in sampled_literals:
             i[2] = np.random.choice(available_it_for_mi)
@@ -353,19 +350,19 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
     if query_id == '24a':
         for i in sampled_literals:
             i[2] = np.random.choice(available_it_for_mi)
-        sql_list = [change_query_24a(i) for i in sampled_literals]  
-    
+        sql_list = [change_query_24a(i) for i in sampled_literals]
+
     if query_id == '25a':
         for i in sampled_literals:
             i[1] = np.random.choice(available_it_for_mi)
             i[2] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_25a(i) for i in sampled_literals]
-    
+
     if query_id == '26a':
         for i in sampled_literals:
             i[3] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_26a(i) for i in sampled_literals]
-    
+
     if query_id == '27a':
         for i in sampled_literals:
             i[0] = np.random.choice(cct_for_cc_subject_id)
@@ -394,7 +391,7 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
             i[4] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_30a(i) for i in sampled_literals]
     # print(sampled_literals)
-    
+
     if query_id == '31a':
         for i in sampled_literals:
             i[2] = np.random.choice(available_it_for_mi)
@@ -402,12 +399,11 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         sql_list = [change_query_31a(i) for i in sampled_literals]
     if query_id == '32a':
         sql_list = [change_query_32a(i) for i in sampled_literals]
-    
+
     if query_id == '33a':
         for i in sampled_literals:
             i[1] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_33a(i) for i in sampled_literals]
-
 
     if query_id == '1':
         for i in sampled_literals:
@@ -418,12 +414,12 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
         sql_list = [change_query_2_0(i) for i in sampled_literals]
     if query_id == '3':
         sql_list = [change_query_3_0(i) for i in sampled_literals]
-    
+
     if query_id == '4':
         for i in sampled_literals:
             i[0] = np.random.choice(available_it_for_miidx)
         sql_list = [change_query_4_0(i) for i in sampled_literals]
-    
+
     if query_id == '5':
         sql_list = [change_query_5_0(i) for i in sampled_literals]
     if query_id == '6':
@@ -443,7 +439,6 @@ def gen_sql_by_template(query_id, K, db_name=None, rank_by_prob=False, sample_pa
     if query_id == '11':
         sql_list = [change_query_11_0(i) for i in sampled_literals]
 
-    
     if query_id == '16':
         sql_list = [change_query_16_0(i) for i in sampled_literals]
 
@@ -475,6 +470,7 @@ AND {literals[1]}
 AND {literals[2]};'''
     return sql
 
+
 # 20g
 def change_query_20g_stats(literals):
     sql = f'''
@@ -491,6 +487,7 @@ AND {literals[1]}
 AND {literals[2]}
 AND {literals[3]};'''
     return sql
+
 
 def change_query_20a_stats(literals):
     sql = f'''
@@ -541,6 +538,7 @@ AND {literals[1]}
 ;'''
     return sql
 
+
 def change_query_21b_stats(literals):
     sql = f'''
     SELECT COUNT(*) 
@@ -557,6 +555,7 @@ def change_query_21b_stats(literals):
     AND {literals[3]};
 '''
     return sql
+
 
 # 25a / 25b
 def change_query_25a_stats(literals):
@@ -575,6 +574,7 @@ AND {literals[2]};
 
 '''
     return sql
+
 
 def change_query_28e_stats(literals):
     sql = f'''
@@ -735,6 +735,7 @@ AND {literals[2]};
 '''
     return sql
 
+
 def change_query_45a_stats(literals):
     sql = f'''
 SELECT COUNT(*) 
@@ -758,6 +759,7 @@ AND {literals[3]}
 AND {literals[4]};
 '''
     return sql
+
 
 def change_query_40d_stats(literals):
     sql = f'''
@@ -956,6 +958,7 @@ def change_query_31a(literals):
     AND cn.id = mc.company_id;
     '''
     return sql
+
 
 def change_query_30a(literals):
     sql = f'''
@@ -1361,7 +1364,6 @@ def change_query_23a(literals):
     return sql
 
 
-
 def change_query_22a(literals):
     sql = f'''
     SELECT MIN(cn.name) AS movie_company,
@@ -1445,6 +1447,7 @@ def change_query_21a(literals):
     '''
     return sql
 
+
 def change_query_21_0(literals):
     sql = f'''
     SELECT MIN(cn.name) AS company_name, MIN(lt.link) AS link_type, MIN(t.title) AS western_follow_up
@@ -1481,6 +1484,7 @@ def change_query_21_0(literals):
     '''
     return sql
 
+
 def change_query_20a(literals):
     sql = f'''
         SELECT MIN(t.title) AS complete_downey_ironman_movie
@@ -1515,6 +1519,7 @@ def change_query_20a(literals):
     '''
     return sql
 
+
 def change_query_20_0(literals):
     sql = f'''
         SELECT MIN(t.title) AS complete_downey_ironman_movie
@@ -1548,6 +1553,7 @@ def change_query_20_0(literals):
         AND cct2.id = cc.status_id;
     '''
     return sql
+
 
 def change_query_19a(literals):
     sql = f'''
@@ -1588,6 +1594,7 @@ def change_query_19a(literals):
     '''
     return sql
 
+
 def change_query_18a(literals):
     sql = f'''
     SELECT MIN(mi.info) AS movie_budget,
@@ -1616,6 +1623,7 @@ def change_query_18a(literals):
     '''
     return sql
 
+
 def change_query_18_0(literals):
     sql = f'''
     SELECT MIN(mi.info) AS movie_budget, MIN(mi_idx.info) AS movie_votes, MIN(t.title) AS movie_title
@@ -1643,6 +1651,7 @@ def change_query_18_0(literals):
     '''
     return sql
 
+
 def change_query_17a(literals):
     sql = f'''
         SELECT MIN(n.name) AS member_in_charnamed_american_movie,
@@ -1668,6 +1677,7 @@ def change_query_17a(literals):
         AND mc.movie_id = mk.movie_id;
         '''
     return sql
+
 
 def change_query_16a(literals):
     sql = f'''
@@ -1697,6 +1707,7 @@ def change_query_16a(literals):
     AND mc.movie_id = mk.movie_id;'''
     return sql
 
+
 def change_query_16_0(literals):
     sql = f'''
     SELECT MIN(an.name) AS cool_actor_pseudonym, MIN(t.title) AS series_named_after_char
@@ -1725,6 +1736,7 @@ def change_query_16_0(literals):
     AND {literals[3]};
     '''
     return sql
+
 
 def change_query_15a(literals):
     sql = f'''
@@ -1763,7 +1775,6 @@ def change_query_15a(literals):
 
 
 def change_query_14a(literals):
-
     sql = f'''
     SELECT MIN(mi_idx.info) AS rating,
        MIN(t.title) AS northern_dark_movie
@@ -1897,6 +1908,7 @@ def change_query_11a(literals):
     '''
     return sql
 
+
 def change_query_11_0(literals):
     sql = f'''
     SELECT MIN(cn.name) AS from_company,
@@ -1953,6 +1965,7 @@ def change_query_10a(literals):
     AND ct.id = mc.company_type_id;
     '''
     return sql
+
 
 def change_query_10_0(literals):
     sql = f'''
@@ -2011,6 +2024,7 @@ def change_query_9a(literals):
 
     '''
     return sql
+
 
 def change_query_9_0(literals):
     sql = f'''
@@ -2072,6 +2086,7 @@ def change_query_8a(literals):
     '''
     return sql
 
+
 def change_query_8_0(literals):
     sql = f'''
     SELECT MIN(an1.name) AS actress_pseudonym,
@@ -2132,6 +2147,7 @@ def change_query_7a(literals):
     '''
     return sql
 
+
 def change_query_7_0(literals):
     sql = f'''
     SELECT COUNT(*) 
@@ -2184,6 +2200,7 @@ WHERE {literals[0]}
         '''
     return sql
 
+
 def change_query_6_0(literals):
     sql = f'''
         SELECT MIN(k.keyword) AS movie_keyword,
@@ -2225,6 +2242,7 @@ def change_query_5a(literals):
     AND it.id = mi.info_type_id;
     '''
     return sql
+
 
 def change_query_5_0(literals):
     sql = f'''
@@ -2268,6 +2286,7 @@ def change_query_4a(literals):
     '''
     return sql
 
+
 def change_query_4_0(literals):
     sql = f'''
     SELECT MIN(mi_idx.info) AS rating,
@@ -2289,6 +2308,7 @@ def change_query_4_0(literals):
     '''
     return sql
 
+
 def change_query_3a(literal):
     sql = f'''
     SELECT MIN(t.title) AS movie_title
@@ -2305,6 +2325,7 @@ def change_query_3a(literal):
     AND k.id = mk.keyword_id;
     '''
     return sql
+
 
 def change_query_3_0(literal):
     sql = f'''
@@ -2323,8 +2344,8 @@ def change_query_3_0(literal):
     '''
     return sql
 
+
 def change_query_2a(literal):
-    
     sql = f'''
     SELECT MIN(t.title) AS movie_title
     FROM company_name AS cn,
@@ -2342,8 +2363,8 @@ def change_query_2a(literal):
     '''
     return sql
 
+
 def change_query_2_0(literal):
-    
     sql = f'''
     SELECT MIN(t.title) AS movie_title
     FROM company_name AS cn,
@@ -2360,6 +2381,7 @@ def change_query_2_0(literal):
     AND {literal[1]};
     '''
     return sql
+
 
 def change_query_1a(literal):
     sql = f'''
@@ -2381,6 +2403,7 @@ def change_query_1a(literal):
     AND it.id = mi_idx.info_type_id;
     '''
     return sql
+
 
 def change_query_1_0(literal):
     sql = f'''

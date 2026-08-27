@@ -11,44 +11,44 @@ basic_tables_stats = {
 
 def querylet(db, kk, cc, template_name, split=None, instance=None):
     querylet_imdb_dict = {
-        'template_mk_k_r' : f'''
+        'template_mk_k_r': f'''
             SELECT * FROM keyword AS k, movie_keyword AS mk
             WHERE {cc} AND mk.keyword_id = k.id;
             ''',
         # mk ci --Q17 --k
-        'template_mk_ci__k' : f'''
+        'template_mk_ci__k': f'''
             SELECT * FROM cast_info AS ci, keyword AS k, movie_keyword AS mk
             where {cc} AND mk.keyword_id = k.id and ci.movie_id = mk.movie_id;
         ''',
 
         # mk ci --Q17 --k
-        'template_mk_ci__n' : f'''
+        'template_mk_ci__n': f'''
             SELECT * FROM cast_info AS ci, movie_keyword AS mk, name AS n
             where {cc} AND n.id = ci.person_id and ci.movie_id = mk.movie_id;
         ''',
 
         ### t ci: use t (ci n) -- Q17
-        'template_t_ci__n' : f'''
+        'template_t_ci__n': f'''
             SELECT * FROM cast_info AS ci, name AS n, title AS t
             WHERE {cc} AND n.id = ci.person_id AND ci.movie_id = t.id;
         ''',
 
         ### ci mc Q17 pure
-        'template_ci_mc__cn' : f'''select * from cast_info AS ci, movie_companies AS mc, company_name AS cn
+        'template_ci_mc__cn': f'''select * from cast_info AS ci, movie_companies AS mc, company_name AS cn
             where {cc} and ci.movie_id = mc.movie_id AND mc.company_id = cn.id; ''',
-        'template_ci_mc__pure' : f'''select * from cast_info AS ci, movie_companies AS mc, company_name AS cn
+        'template_ci_mc__pure': f'''select * from cast_info AS ci, movie_companies AS mc, company_name AS cn
             where {cc} and ci.movie_id = mc.movie_id AND mc.company_id = cn.id; ''',
-        
-        'template_ci_mc__n' : f'''select * from cast_info AS ci, movie_companies AS mc, name AS n
+
+        'template_ci_mc__n': f'''select * from cast_info AS ci, movie_companies AS mc, name AS n
             where {cc} and ci.movie_id = mc.movie_id AND n.id = ci.person_id; ''',
 
-        'template_mk_k_pure' : f'''
+        'template_mk_k_pure': f'''
             SELECT * FROM keyword AS k, movie_keyword AS mk
             WHERE {cc} AND mk.keyword_id = k.id;
             ''',
 
         ### ml mk: use (ml) (k mk) -- Q32
-        'template_ml_mk__k' : f'''
+        'template_ml_mk__k': f'''
             SELECT *
             FROM keyword AS k,
                 movie_keyword AS mk,
@@ -58,23 +58,22 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
             AND mk.movie_id = ml.movie_id;
         ''',
         ### t mk: use (t) (mk) and (t) (k mk) -- Q32
-        'template_t_mk_1' : f'''
+        'template_t_mk_1': f'''
             SELECT *
             FROM movie_keyword AS mk,
                 title AS t
             WHERE {cc}
             AND t.id = mk.movie_id;
         ''',
-        'template_t_mk_2' : f'''
+        'template_t_mk_2': f'''
             SELECT *
             FROM keyword AS k, movie_keyword AS mk, title AS t
             WHERE {cc} AND {kk} AND mk.keyword_id = k.id AND t.id = mk.movie_id
             ;
         ''',
 
-
         ### t ml: use (t) (ml) -- Q32
-        'template_t_ml_l_1' : f'''
+        'template_t_ml_l_1': f'''
             SELECT * FROM movie_link AS ml, title AS t
             WHERE {cc} AND ml.movie_id = t.id;
         ''',
@@ -84,115 +83,110 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         ''',
 
         ### t ml: Saved in t-ml-2.txt when join on linked_movie_id
-        'template_t_ml_l_2' : f'''
+        'template_t_ml_l_2': f'''
             SELECT *
             FROM movie_link AS ml,
             title AS t
             WHERE {cc}
             AND ml.linked_movie_id = t.id;
         ''',
-        'template_t_ml_2_pure' : f'''
+        'template_t_ml_2_pure': f'''
             SELECT *
             FROM movie_link AS ml,
             title AS t
             WHERE {cc}
             AND ml.linked_movie_id = t.id;
         ''',
-
 
         # t ci -- Q16 condition on left
-        'template_t_ci_l' : f'''
+        'template_t_ci_l': f'''
             SELECT * FROM cast_info AS ci, title AS t
             WHERE {cc} AND ci.movie_id = t.id;
         ''',
 
         # mc cn -- Q16
-        'template_mc_cn_both' : f'''
+        'template_mc_cn_both': f'''
             SELECT * FROM company_name AS cn, movie_companies AS mc
             WHERE {cc} AND {kk} AND mc.company_id = cn.id;
         ''',
 
-
         # t mc -- Q16 left
-        'template_t_mc_l' : f'''
+        'template_t_mc_l': f'''
             SELECT * FROM movie_companies AS mc, title AS t
             WHERE {cc} AND t.id = mc.movie_id;
         ''',
 
-
         # t mk -- Q16
-        'template_t_mk_l' : f'''
+        'template_t_mk_l': f'''
             SELECT * FROM movie_keyword AS mk, title AS t
             WHERE {cc} AND t.id = mk.movie_id;
         ''',
-        'template_t_mk_pure' : f'''
+        'template_t_mk_pure': f'''
             SELECT * FROM movie_keyword AS mk, title AS t
             WHERE {cc} AND t.id = mk.movie_id;
         ''',
 
         # n ci -- Q16 pure
-        'template_n_ci__pure' : f'''
+        'template_n_ci__pure': f'''
             SELECT * FROM cast_info AS ci, name AS n
             WHERE {cc} AND n.id = ci.person_id;
         ''',
 
         # n an -- Q16 pure
-        'template_n_an__pure' : f'''
+        'template_n_an__pure': f'''
             SELECT * FROM aka_name AS an, name AS n
             WHERE {cc} AND an.person_id = n.id;
         ''',
 
-
         # ci an -- Q16 pure
-        'template_ci_an__pure' : f'''
+        'template_ci_an__pure': f'''
             SELECT * FROM aka_name AS an, cast_info AS ci
             Where {cc} AND an.person_id = ci.person_id;
         ''',
 
-        'template_ci_an__t' : f'''
+        'template_ci_an__t': f'''
             SELECT * FROM aka_name AS an, cast_info AS ci, title AS t
             Where {cc} AND ci.movie_id = t.id AND an.person_id = ci.person_id;
         ''',
 
         # mc aka_t -- Q15
-        'template_mc_aka_t_l' : f'''
+        'template_mc_aka_t_l': f'''
             SELECT * FROM aka_title AS aka_t, movie_companies AS mc
             WHERE {cc} AND mc.movie_id = aka_t.movie_id;
         ''',
-        'template_mc_aka_t_pure' : f'''
+        'template_mc_aka_t_pure': f'''
             SELECT * FROM aka_title AS aka_t, movie_companies AS mc
             WHERE {cc} AND mc.movie_id = aka_t.movie_id;
         ''',
 
         # mi aka_t -- Q15
-        'template_mi_aka_t_l' : f'''
+        'template_mi_aka_t_l': f'''
             SELECT * FROM aka_title AS aka_t, movie_info AS mi
             WHERE {cc} AND mi.movie_id = aka_t.movie_id;
         ''',
-        'template_mi_aka_t_pure' : f'''
+        'template_mi_aka_t_pure': f'''
             SELECT * FROM aka_title AS aka_t, movie_info AS mi
             WHERE {cc} AND mi.movie_id = aka_t.movie_id;
         ''',
-
 
         # mk aka_t -- Q15 aka_t (mk mc)
-        'template_mk_aka_t__mc' : f'''
+        'template_mk_aka_t__mc': f'''
             SELECT * FROM aka_title AS aka_t, movie_companies AS mc, movie_keyword AS mk
             WHERE {cc} AND mk.movie_id = mc.movie_id AND mk.movie_id = aka_t.movie_id;
         ''',
-        'template_mk_aka_t_pure' : f'''
+        'template_mk_aka_t_pure': f'''
             SELECT * FROM aka_title AS aka_t, movie_keyword AS mk
             WHERE {cc} AND mk.movie_id = aka_t.movie_id;
         ''',
 
         # t aka_t -- Q15
-        'template_t_aka_t_l' : f'''
+        'template_t_aka_t_l': f'''
             SELECT *
             FROM aka_title AS aka_t, title AS t
             WHERE {cc}
             AND t.id = aka_t.movie_id;
         ''',
-        'template_t_aka_t_pure' : f'''
+        'template_t_aka_t_pure': f'''
             SELECT *
             FROM aka_title AS aka_t, title AS t
             WHERE {cc}
@@ -200,116 +194,116 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         ''',
 
         # mc ct -- Q15 left
-        'template_mc_ct_l' : f'''
+        'template_mc_ct_l': f'''
             SELECT * FROM company_type AS ct, movie_companies AS mc
             WHERE {cc} AND ct.id = mc.company_type_id;
         ''',
-        'template_mc_ct_pure' : f'''
+        'template_mc_ct_pure': f'''
             SELECT * FROM company_type AS ct, movie_companies AS mc
             WHERE {cc} AND ct.id = mc.company_type_id;
         ''',
 
         # mi it -- Q15
-        'template_mi_it_r' : f'''
+        'template_mi_it_r': f'''
             SELECT * FROM movie_info AS mi, info_type AS it
             WHERE {cc} AND it.id = mi.info_type_id;
         ''',
 
         # mk mi -- Q15 right
-        'template_mk_mi_r' : f'''
+        'template_mk_mi_r': f'''
             SELECT * FROM movie_info AS mi, movie_keyword AS mk
             WHERE {cc} AND mk.movie_id = mi.movie_id;
         ''',
-        'template_mk_mi_pure' : f'''
+        'template_mk_mi_pure': f'''
             SELECT * FROM movie_info AS mi, movie_keyword AS mk
             WHERE {cc} AND mk.movie_id = mi.movie_id;
         ''',
         # mk mc -- Q15
-        'template_mk_mc_r' : f'''
+        'template_mk_mc_r': f'''
             select * from movie_companies AS mc, movie_keyword AS mk
             where {cc} and mk.movie_id = mc.movie_id;
         ''',
-        'template_mk_mc_pure' : f'''
+        'template_mk_mc_pure': f'''
             select * from movie_companies AS mc, movie_keyword AS mk
             where {cc} and mk.movie_id = mc.movie_id;
         ''',
         # t mi -- Q15 both
-        'template_t_mi_both' : f'''
+        'template_t_mi_both': f'''
             SELECT * FROM movie_info AS mi, title AS t
             WHERE {cc} AND {kk} and t.id = mi.movie_id;
         ''',
 
         # mi mc -- Q15 both
-        'template_mi_mc_both' : f'''
+        'template_mi_mc_both': f'''
             SELECT * FROM movie_companies AS mc, movie_info AS mi
             WHERE {cc} AND {kk} AND mi.movie_id = mc.movie_id;
         ''',
 
         # ci an -- Q7 condition on right
-        'template_ci_an_r' : f'''
+        'template_ci_an_r': f'''
             select * from aka_name AS an, cast_info AS ci
             where {cc} and an.person_id = ci.person_id;
         ''',
         # n an -- Q7 condition on both
-        'template_n_an_both' : f'''
+        'template_n_an_both': f'''
             SELECT * FROM aka_name AS an, name AS n
             WHERE {cc} AND {kk} AND an.person_id = n.id;
         ''',
         # pi an -- Q7 condition on both
-        'template_pi_an_both' : f'''
+        'template_pi_an_both': f'''
             SELECT * FROM aka_name AS an, person_info AS pi
             WHERE {cc} AND {kk} AND pi.person_id = an.person_id;
         ''',
         # ml ci --Q7 pure
-        'template_ml_ci_pure' : f'''
+        'template_ml_ci_pure': f'''
             SELECT * FROM cast_info AS ci, movie_link AS ml
             where {cc} and ci.movie_id = ml.linked_movie_id;
         ''',
         # pi ci -- Q7 condition on left
-        'template_pi_ci_l' : f'''
+        'template_pi_ci_l': f'''
             SELECT * FROM cast_info AS ci, person_info AS pi
             where {cc} and pi.person_id = ci.person_id;
         ''',
 
         # pi it -- Q7 condition on both table
-        'template_pi_it_both' : f'''
+        'template_pi_it_both': f'''
             select * from info_type AS it, person_info AS pi
             where {cc} and {kk} and it.id = pi.info_type_id;
         ''',
         # ml lt -- Q7 right
-        'template_ml_lt_r' : f'''
+        'template_ml_lt_r': f'''
             SELECT * FROM link_type AS lt, movie_link AS ml
             WHERE {cc} AND lt.id = ml.link_type_id;
         ''',
 
         # pi n --Q7 both
-        'template_pi_n_both' : f'''
+        'template_pi_n_both': f'''
             select * from name AS n, person_info AS pi
             where {cc} and {kk} AND n.id = pi.person_id;
         ''',
 
         # mi it -- Q14 both
-        'template_mi_it_both' : f'''
+        'template_mi_it_both': f'''
             SELECT * FROM movie_info AS mi, info_type AS it
             WHERE {cc} AND {kk} and it.id = mi.info_type_id;
         ''',
         # mi_idx it -- Q14 both
-        'template_mi_idx_it_both' : f'''
+        'template_mi_idx_it_both': f'''
             SELECT * FROM info_type AS it, movie_info_idx AS mi_idx
             where {cc} and {kk} and it.id = mi_idx.info_type_id;
         ''',
         # t kt -- Q14 both
-        'template_t_kt_both' : f'''
+        'template_t_kt_both': f'''
             select * from kind_type AS kt, title AS t
             where {cc} and {kk} and kt.id = t.kind_id;
         ''',
         # mi_idx mi --Q14 both
-        'template_mi_idx_mi_both' : f'''
+        'template_mi_idx_mi_both': f'''
             select * from movie_info AS mi, movie_info_idx AS mi_idx
             where {cc} and {kk} and mi.movie_id = mi_idx.movie_id;
         ''',
 
-        'template_mi_idx_mi_r' : f'''
+        'template_mi_idx_mi_r': f'''
             select * from movie_info AS mi, movie_info_idx AS mi_idx
             where {cc} and mi.movie_id = mi_idx.movie_id;
         ''',
@@ -319,534 +313,533 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         #     WHERE {cc} AND {kk} and mk.movie_id = mi.movie_id;
         # ''',
         # mk mi_idx --Q14 r
-        'template_mk_mi_idx_r' : f'''
+        'template_mk_mi_idx_r': f'''
             select * from movie_info_idx AS mi_idx, movie_keyword AS mk
             where {cc} and mk.movie_id = mi_idx.movie_id;
         ''',
-        'template_mk_mi_idx_pure' : f'''
+        'template_mk_mi_idx_pure': f'''
             select * from movie_info_idx AS mi_idx, movie_keyword AS mk
             where {cc} and mk.movie_id = mi_idx.movie_id;
         ''',
         # t mi_idx --Q14 both
-        'template_t_mi_idx_both' : f'''
+        'template_t_mi_idx_both': f'''
             select * from movie_info_idx AS mi_idx, title AS t
             where {cc} and {kk} and t.id = mi_idx.movie_id;
         ''',
         # t mk -- Q14 left
-        'template_t_mk_l' : f'''
+        'template_t_mk_l': f'''
             SELECT * FROM movie_keyword AS mk, title AS t
             WHERE {cc} AND t.id = mk.movie_id;
         ''',
         # mi_idx it -- Q13 right
-        'template_mi_idx_it_r' : f'''
+        'template_mi_idx_it_r': f'''
             SELECT * FROM info_type AS it, movie_info_idx AS mi_idx
             where {cc} and it.id = mi_idx.info_type_id;
         ''',
-        'template_mi_idx_it_pure' : f'''
+        'template_mi_idx_it_pure': f'''
             SELECT * FROM info_type AS it, movie_info_idx AS mi_idx
             where {cc} and it.id = mi_idx.info_type_id;
         ''',
         # t kt -- Q13 right
-        'template_t_kt_r' : f'''
+        'template_t_kt_r': f'''
             select * from kind_type AS kt, title AS t
             where {cc} and kt.id = t.kind_id;
         ''',
-        'template_t_kt_pure' : f'''
+        'template_t_kt_pure': f'''
             select * from kind_type AS kt, title AS t
             where {cc} and kt.id = t.kind_id;
         ''',
         # mi mc -- Q13 mc (it mi) condition on it
-        'template_mi_mc__it' : f'''
+        'template_mi_mc__it': f'''
             select * from info_type AS it, movie_companies AS mc, movie_info AS mi
             where {cc} and it.id = mi.info_type_id and mi.movie_id = mc.movie_id;
         ''',
         # mi_idx mc -- Q13 pure
-        'template_mi_idx_mc_pure' : f'''
+        'template_mi_idx_mc_pure': f'''
             select * from movie_companies AS mc, movie_info_idx AS mi_idx 
             where {cc} AND mi_idx.movie_id = mc.movie_id;
         ''',
         # t mc --Q13 mc (kt t) condition on kt
-        'template_t_mc__kt' : f'''
+        'template_t_mc__kt': f'''
             select * from kind_type AS kt, movie_companies AS mc, title AS t
             where {cc} and kt.id = t.kind_id and mc.movie_id = t.id;
         ''',
         # mi_idx mi --Q13 mi_idx (it mi) condition on it
-        'template_mi_idx_mi__it' : f'''
+        'template_mi_idx_mi__it': f'''
             select * from info_type AS it,movie_info AS mi,movie_info_idx AS mi_idx
             where {cc} and it.id = mi.info_type_id AND mi.movie_id = mi_idx.movie_id;
         ''',
         # t mi --Q13 t (it mi) condition on it
-        'template_t_mi__it' : f'''
+        'template_t_mi__it': f'''
             select * from info_type AS it, movie_info AS mi, title AS t
             where {cc} and mi.movie_id = t.id and it.id = mi.info_type_id; 
         ''',
         # t mi --Q13 mi (kt t)
-        'template_t_mi__kt' : f'''
+        'template_t_mi__kt': f'''
             select * from kind_type AS kt, title AS t, movie_info AS mi
             where {cc} and mi.movie_id = t.id and kt.id = t.kind_id; 
         ''',
         # t mi_idx --Q13 t (it mi_idx)
-        'template_t_mi_idx__it' : f'''
+        'template_t_mi_idx__it': f'''
             select * from info_type AS it, movie_info_idx AS mi_idx,title AS t
             where {cc} and mi_idx.movie_id = t.id AND it.id = mi_idx.info_type_id;
         ''',
         # mc cn -- Q12 right
-        'template_mc_cn_r' : f'''
+        'template_mc_cn_r': f'''
             SELECT * FROM company_name AS cn, movie_companies AS mc
             WHERE {cc} AND mc.company_id = cn.id;
         ''',
-        'template_mc_cn_pure' : f'''
+        'template_mc_cn_pure': f'''
             SELECT * FROM company_name AS cn, movie_companies AS mc
             WHERE {cc} AND mc.company_id = cn.id;
         ''',
         # mc ct -- Q12 right
-        'template_mc_ct_r' : f'''
+        'template_mc_ct_r': f'''
             SELECT * FROM company_type AS ct, movie_companies AS mc
             WHERE {cc} AND ct.id = mc.company_type_id;
         ''',
         # mi mc -- Q12 left
-        'template_mi_mc_l' : f'''
+        'template_mi_mc_l': f'''
             SELECT * FROM movie_companies AS mc, movie_info AS mi
             WHERE {cc} AND mi.movie_id = mc.movie_id;
         ''',
-        'template_mi_mc_pure' : f'''
+        'template_mi_mc_pure': f'''
             SELECT * FROM movie_companies AS mc, movie_info AS mi
             WHERE {cc} AND mi.movie_id = mc.movie_id;
         ''',
         # mi_idx mc -- Q12 left
-        'template_mi_idx_mc_l' : f'''
+        'template_mi_idx_mc_l': f'''
             select * from movie_companies AS mc, movie_info_idx AS mi_idx 
             where {cc} AND mi_idx.movie_id = mc.movie_id;
         ''',
         # mi_idx mc -- Q1 right
-        'template_mi_idx_mc_r' : f'''
+        'template_mi_idx_mc_r': f'''
             select * from movie_companies AS mc, movie_info_idx AS mi_idx 
             where {cc} AND mi_idx.movie_id = mc.movie_id;
         ''',
         # mc ct -- Q11 both
-        'template_mc_ct_both' : f'''
+        'template_mc_ct_both': f'''
             SELECT * FROM company_type AS ct, movie_companies AS mc
             WHERE {cc} AND {kk} AND ct.id = mc.company_type_id;
         ''',
         # ml mc --Q11 right
-        'template_ml_mc_r' : f'''
+        'template_ml_mc_r': f'''
             select * from movie_companies AS mc,movie_link AS ml
             where {cc} and ml.movie_id = mc.movie_id;
         ''',
         # t mc -- Q11 both
-        'template_t_mc_both' : f'''
+        'template_t_mc_both': f'''
             SELECT * FROM movie_companies AS mc, title AS t
             WHERE {cc} AND {kk} AND t.id = mc.movie_id;
         ''',
         # ci an -- Q8 condition on left
-        'template_ci_an_l' : f'''
+        'template_ci_an_l': f'''
             select * from aka_name AS an, cast_info AS ci
             where {cc} and an.person_id = ci.person_id;
         ''',
         # n an -- Q8 condition on left
-        'template_n_an_l' : f'''
+        'template_n_an_l': f'''
             SELECT * FROM aka_name AS an, name AS n
             WHERE {cc} AND an.person_id = n.id;
         ''',
         # mc ci -- Q8 both
-        'template_mc_ci_both' : f'''
+        'template_mc_ci_both': f'''
             SELECT * FROM cast_info AS ci, movie_companies AS mc
             WHERE {cc} and {kk} AND ci.movie_id = mc.movie_id;
         ''',
         # n ci -- Q8 both
-        'template_n_ci_both' : f'''
+        'template_n_ci_both': f'''
             SELECT * FROM cast_info AS ci, name AS n
             WHERE {cc} AND {kk} AND n.id = ci.person_id;
         ''',
         # rt ci -- Q8 left
-        'template_rt_ci_r' : f'''
+        'template_rt_ci_r': f'''
             select * from role_type AS rt, cast_info AS ci
             where {cc} and ci.role_id = rt.id;
         ''',
         # t ci -- Q8 both
-        'template_t_ci_both' : f'''
+        'template_t_ci_both': f'''
             SELECT * FROM cast_info AS ci, title AS t
             WHERE {cc} AND {kk} AND ci.movie_id = t.id;
         ''',
         # t mc -- right
-        'template_t_mc_r' : f'''
+        'template_t_mc_r': f'''
             SELECT * FROM movie_companies AS mc, title AS t
             WHERE {cc} AND t.id = mc.movie_id;
         ''',
-        'template_t_mc_pure' : f'''
+        'template_t_mc_pure': f'''
             SELECT * FROM movie_companies AS mc, title AS t
             WHERE {cc} AND t.id = mc.movie_id;
         ''',
         # ci chn -- Q9 left
-        'template_ci_chn_l' : f'''
+        'template_ci_chn_l': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci
             where {cc} and chn.id = ci.person_role_id;
         ''',
-        'template_ci_chn_pure' : f'''
+        'template_ci_chn_pure': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci
             where {cc} and chn.id = ci.person_role_id;
         ''',
         # rt ci -- Q9 both
-        'template_rt_ci_both' : f'''
+        'template_rt_ci_both': f'''
             select * from role_type AS rt, cast_info AS ci
             where {cc} and {kk} AND ci.role_id = rt.id;
         ''',
         # mc ci -- Q10 right
-        'template_mc_ci_r' : f'''
+        'template_mc_ci_r': f'''
             SELECT * FROM cast_info AS ci, movie_companies AS mc
             WHERE {cc} AND ci.movie_id = mc.movie_id;
         ''',
-        'template_mc_ci_pure' : f'''
+        'template_mc_ci_pure': f'''
             SELECT * FROM cast_info AS ci, movie_companies AS mc
             WHERE {cc} AND ci.movie_id = mc.movie_id;
         ''',
         # mc ct -- Q10 ct (ci mc) 
-        'template_mc_ct__ci' : f'''
+        'template_mc_ct__ci': f'''
             SELECT * FROM cast_info AS ci, company_type AS ct, movie_companies AS mc
             WHERE {cc} and ci.movie_id = mc.movie_id AND ct.id = mc.company_type_id;
         ''',
         # mc ct -- Q10 ct (cn mc)
-        'template_mc_ct__cn' : f'''
+        'template_mc_ct__cn': f'''
             SELECT * FROM company_name AS cn, company_type AS ct, movie_companies AS mc
             WHERE {cc} and cn.id = mc.company_id AND ct.id = mc.company_type_id;
         ''',
         # n ci -- Q6 left
-        'template_n_ci_l' : f'''
+        'template_n_ci_l': f'''
             SELECT * FROM cast_info AS ci, name AS n
             WHERE {cc} AND n.id = ci.person_id;
         ''',
         # mk ci --Q6 pure
-        'template_mk_ci_pure' : f'''
+        'template_mk_ci_pure': f'''
             SELECT * FROM cast_info AS ci, movie_keyword AS mk
             where {cc} and ci.movie_id = mk.movie_id;
         ''',
         # mi it -- Q5 left
-        'template_mi_it_l' : f'''
+        'template_mi_it_l': f'''
             SELECT * FROM movie_info AS mi, info_type AS it
             WHERE {cc} AND it.id = mi.info_type_id;
-        ''',        
-        'template_mi_it_pure' : f'''
+        ''',
+        'template_mi_it_pure': f'''
             SELECT * FROM movie_info AS mi, info_type AS it
             WHERE {cc} AND it.id = mi.info_type_id;
-        ''',    
+        ''',
         # mk mc -- Q2 mk (cn mc)
-        'template_mk_mc__cn' : f'''
+        'template_mk_mc__cn': f'''
             select * from company_name AS cn, movie_companies AS mc, movie_keyword AS mk
             where {cc} AND cn.id = mc.company_id and mk.movie_id = mc.movie_id;
-        ''',    
+        ''',
         # mk mc -- Q2 mc (k mk)
-        'template_mk_mc__k' : f'''
+        'template_mk_mc__k': f'''
             select * from keyword AS k, movie_companies AS mc, movie_keyword AS mk
             where {cc} AND mk.keyword_id = k.id and mk.movie_id = mc.movie_id;
-        ''',    
+        ''',
         # t mc -- Q2 t (cn mc)
-        'template_t_mc__cn' : f'''
+        'template_t_mc__cn': f'''
             SELECT * FROM company_name AS cn, movie_companies AS mc, title AS t
             WHERE {cc} AND cn.id = mc.company_id AND t.id = mc.movie_id;
         ''',
         # t mk --Q2 t (k mk)
-        'template_t_mk__k' : f'''
+        'template_t_mk__k': f'''
             SELECT * FROM keyword AS k, movie_keyword AS mk, title AS t
             WHERE {cc} AND mk.keyword_id = k.id AND t.id = mk.movie_id;
         ''',
         # cct cc -- Q20 left join on subject_id
-        'template_cct_cc_1_l' : f'''
+        'template_cct_cc_1_l': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.subject_id;
         ''',
         # cct cc -- Q20 left join on subject_id
-        'template_cct1_cc_l' : f'''
+        'template_cct1_cc_l': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.subject_id;
         ''',
         # cct cc -- Q20 left join on status_id
-        'template_cct_cc_2_l' : f'''
+        'template_cct_cc_2_l': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.status_id;
         ''',
         # cct cc -- Q20 left join on status_id
-        'template_cct2_cc_l' : f'''
+        'template_cct2_cc_l': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.status_id;
-        ''', 
+        ''',
         # cct cc -- Q23 left join on status_id # mark
-        'template_cct_cc_l' : f'''
+        'template_cct_cc_l': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.status_id;
-        ''',    
-        'template_cct_cc_pure' : f'''
+        ''',
+        'template_cct_cc_pure': f'''
             select * from complete_cast AS cc,comp_cast_type AS cct
             where {cc} AND cct.id = cc.subject_id;
         ''',
         # t cc -- Q20 left
-        'template_t_cc_l' : f'''
+        'template_t_cc_l': f'''
             select * from complete_cast AS cc, title AS t
             where {cc} and t.id = cc.movie_id;
-        ''',   
-        'template_t_cc_pure' : f'''
+        ''',
+        'template_t_cc_pure': f'''
             select * from complete_cast AS cc, title AS t
             where {cc} and t.id = cc.movie_id;
-        ''',      
+        ''',
         # ci chn -- Q20 right
-        'template_ci_chn_r' : f'''
+        'template_ci_chn_r': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci
             where {cc} and chn.id = ci.person_role_id;
         ''',
         # ci cc --Q20 ci (cc cct)
-        'template_ci_cc__cct' : f'''
+        'template_ci_cc__cct': f'''
             select * from complete_cast AS cc, comp_cast_type AS cct, cast_info AS ci
             where {cc} and ci.movie_id = cc.movie_id and cct.id = cc.status_id;
         ''',
         # mk cc -- Q20 mk (cc cct)
-        'template_mk_cc__cct' : f'''
+        'template_mk_cc__cct': f'''
             select * from complete_cast AS cc, comp_cast_type AS cct, movie_keyword AS mk
             where {cc} and mk.movie_id = cc.movie_id and cct.id = cc.status_id;
         ''',
-        'template_mk_cc_pure' : f'''
+        'template_mk_cc_pure': f'''
             select * from complete_cast AS cc, movie_keyword AS mk
             where {cc} and mk.movie_id = cc.movie_id;
         ''',
         # mk ci -- Q20 mk (chn ci)
-        'template_mk_ci__chn' : f'''
+        'template_mk_ci__chn': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci, movie_keyword AS mk
             where {cc} and ci.movie_id = mk.movie_id AND chn.id = ci.person_role_id;
         ''',
         # n ci -- Q20 n (chn ci)
-        'template_n_ci__chn' : f'''
+        'template_n_ci__chn': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci, name AS n
             where {cc} AND chn.id = ci.person_role_id AND n.id = ci.person_id;
         ''',
         # t mi --  left
-        'template_t_mi_l' : f'''
+        'template_t_mi_l': f'''
             SELECT * FROM movie_info AS mi,title AS t
             where {cc} AND mi.movie_id = t.id;
         ''',
         # t mi --  right
-        'template_t_mi_r' : f'''
+        'template_t_mi_r': f'''
             SELECT * FROM movie_info AS mi,title AS t
             where {cc} AND mi.movie_id = t.id;
         ''',
-        'template_t_mi_pure' : f'''
+        'template_t_mi_pure': f'''
             SELECT * FROM movie_info AS mi,title AS t
             where {cc} AND mi.movie_id = t.id;
         ''',
         # ml mi -- Q21 r
-        'template_ml_mi_r' : f'''
+        'template_ml_mi_r': f'''
             select * from movie_info AS mi,movie_link AS ml
             where {cc} AND ml.movie_id = mi.movie_id;
         ''',
         # ml mi -- Q22 
-        'template_ml_mi_both' : f'''
+        'template_ml_mi_both': f'''
             select * from movie_info AS mi,movie_link AS ml
             where {cc} AND ml.movie_id = mi.movie_id;
         ''',
         # mi_idx mc -- Q22 left
-        'template_mi_idx_mc_both' : f'''
+        'template_mi_idx_mc_both': f'''
             select * from movie_companies AS mc, movie_info_idx AS mi_idx 
             where {cc} AND {kk} AND mi_idx.movie_id = mc.movie_id;
         ''',
         # mc cc -- Q23 pure
-        'template_mc_cc_pure' : f'''
+        'template_mc_cc_pure': f'''
             select * from complete_cast AS cc,movie_companies AS mc
             where {cc} and mc.movie_id = cc.movie_id;
         ''',
         # mc cc -- Q23 mc (cc cct)
-        'template_mc_cc__cct' : f'''
+        'template_mc_cc__cct': f'''
             select * from complete_cast AS cc,movie_companies AS mc, comp_cast_type AS cct
             where {cc} and mc.movie_id = cc.movie_id and cct.id = cc.status_id;
         ''',
         # mk cc -- Q23 mk (cc mi)
-        'template_mk_cc__mi' : f'''
+        'template_mk_cc__mi': f'''
             select * from complete_cast AS cc, comp_cast_type AS cct, movie_info AS mi
             where {cc} and mi.movie_id = cc.movie_id and cct.id = cc.status_id;
         ''',
         # mi cc -- Q23 left
-        'template_mi_cc_l' : f'''
+        'template_mi_cc_l': f'''
             select * from complete_cast AS cc, movie_info AS mi
             where {cc} and mi.movie_id = cc.movie_id;
         ''',
         # mk ci --Q24 r
-        'template_mk_ci_r' : f'''
+        'template_mk_ci_r': f'''
             SELECT * FROM cast_info AS ci, movie_keyword AS mk
             where {cc} and ci.movie_id = mk.movie_id;
         ''',
         # mi ci -- Q24 both
-        'template_mi_ci_both' : f'''
+        'template_mi_ci_both': f'''
             select * from cast_info AS ci, movie_info AS mi
             where {cc} and {kk} and mi.movie_id = ci.movie_id;
         ''',
-        'template_mi_ci_pure' : f'''
+        'template_mi_ci_pure': f'''
             select * from cast_info AS ci, movie_info AS mi
             where {cc} and mi.movie_id = ci.movie_id;
         ''',
         ### mi ci -- Q18 right
-        'template_mi_ci_r' : f'''
+        'template_mi_ci_r': f'''
             select * from cast_info AS ci, movie_info AS mi
             where {cc} and mi.movie_id = ci.movie_id;
         ''',
         ### t ml -- Q21 left
-        'template_t_ml_l' : f'''
+        'template_t_ml_l': f'''
             SELECT * FROM movie_link AS ml, title AS t
             WHERE {cc} AND ml.movie_id = t.id;
         ''',
         ### mi_idx ci
-        'template_mi_idx_ci_r' : f'''
+        'template_mi_idx_ci_r': f'''
             SELECT * FROM cast_info AS ci, movie_info_idx AS mi_idx 
             where {cc} AND ci.movie_id = mi_idx.movie_id;''',
-        'template_mi_idx_ci_l' : f'''
+        'template_mi_idx_ci_l': f'''
             SELECT * FROM cast_info AS ci, movie_info_idx AS mi_idx 
             where {cc} AND ci.movie_id = mi_idx.movie_id;''',
-        'template_mi_idx_ci_pure' : f'''
+        'template_mi_idx_ci_pure': f'''
             SELECT * FROM cast_info AS ci, movie_info_idx AS mi_idx 
             where {cc} AND ci.movie_id = mi_idx.movie_id;''',
-        
+
         ### t ci 25
-        'template_t_ci_r' : f'''
+        'template_t_ci_r': f'''
             SELECT * FROM cast_info AS ci,title AS t
             where {cc} AND t.id = ci.movie_id;
         ''',
-        'template_t_ci_pure' : f'''
+        'template_t_ci_pure': f'''
             SELECT * FROM cast_info AS ci,title AS t
             where {cc} AND t.id = ci.movie_id;
         ''',
         ### mi_idx cc  q26
-        'template_mi_idx_cc_l' : f'''
+        'template_mi_idx_cc_l': f'''
             SELECT * FROM complete_cast AS cc, movie_info_idx AS mi_idx
             where {cc} AND cc.movie_id = mi_idx.movie_id;
         ''',
-        'template_mi_idx_cc_pure' : f'''
+        'template_mi_idx_cc_pure': f'''
             SELECT * FROM complete_cast AS cc, movie_info_idx AS mi_idx
             where {cc} AND cc.movie_id = mi_idx.movie_id;
         ''',
         ### mc cc q27
-        'template_mc_cc_l' : f'''
+        'template_mc_cc_l': f'''
             SELECT * FROM complete_cast AS cc,  movie_companies AS mc
             where {cc} and mc.movie_id = cc.movie_id;
         ''',
         ### ml cc on cct.subject_id 27
-        'template_ml_cc__cct_1' : f'''
+        'template_ml_cc__cct_1': f'''
             SELECT * FROM complete_cast AS cc, comp_cast_type AS cct, movie_link AS ml
             where {cc} and ml.movie_id = cc.movie_id AND cct.id = cc.subject_id;
         ''',
         ### ml cc on cct.status_id 27
-        'template_ml_cc__cct_2' : f'''
+        'template_ml_cc__cct_2': f'''
             SELECT * FROM complete_cast AS cc, comp_cast_type AS cct, movie_link AS ml
             where {cc} and ml.movie_id = cc.movie_id AND cct.id = cc.status_id;
         ''',
         # pi ci -- Q7 condition on left
-        'template_pi_ci_both' : f'''
+        'template_pi_ci_both': f'''
             SELECT * FROM cast_info AS ci, person_info AS pi
             where {cc} and {kk} and pi.person_id = ci.person_id;
         ''',
         # ci cc --Q30 ci (cc cct)
-        'template_ci_cc_l' : f'''
+        'template_ci_cc_l': f'''
             select * from complete_cast AS cc, cast_info AS ci
             where {cc} and ci.movie_id = cc.movie_id;
         ''',
-        'template_ci_cc_pure' : f'''
+        'template_ci_cc_pure': f'''
             select * from complete_cast AS cc, cast_info AS ci
             where {cc} and ci.movie_id = cc.movie_id;
         ''',
         # t mi_idx --Q30 left
-        'template_t_mi_idx_l' : f'''
+        'template_t_mi_idx_l': f'''
             select * from movie_info_idx AS mi_idx, title AS t
             where {cc} and t.id = mi_idx.movie_id;
         ''',
-        'template_t_mi_idx_pure' : f'''
+        'template_t_mi_idx_pure': f'''
             select * from movie_info_idx AS mi_idx, title AS t
             where {cc} and t.id = mi_idx.movie_id;
         ''',
 
         # ml mi_idx -- Q33 r
-        'template_ml_mi_idx_r' : f'''
+        'template_ml_mi_idx_r': f'''
             select * from movie_info_idx AS mi_idx, movie_link AS ml
             where {cc} and ml.linked_movie_id = mi_idx.movie_id;
         ''',
 
         # mk mi_idx -- Q31 --k
-        'template_mk_mi_idx__k' : f'''
+        'template_mk_mi_idx__k': f'''
             select * from movie_info_idx AS mi_idx, movie_keyword AS mk, keyword AS k
             where {cc} and mk.movie_id = mi_idx.movie_id AND k.id = mk.keyword_id;
         ''',
 
-        'template_mi_idx_mc__it' : f'''
+        'template_mi_idx_mc__it': f'''
             select * from movie_companies AS mc, movie_info_idx AS mi_idx, info_type AS it
             where {cc} AND mi_idx.movie_id = mc.movie_id AND it.id = mi_idx.info_type_id;
         ''',
 
         # Q29
-        'template_ci_chn_both' : f'''
+        'template_ci_chn_both': f'''
             SELECT * FROM char_name AS chn, cast_info AS ci
             where {cc} and {kk} and chn.id = ci.person_role_id;
         ''',
-        'template_pi_ci_r' : f'''
+        'template_pi_ci_r': f'''
             SELECT * FROM cast_info AS ci, person_info AS pi
             where {cc} and pi.person_id = ci.person_id;
         ''',
-        'template_pi_it_r' : f'''
+        'template_pi_it_r': f'''
             select * from info_type AS it, person_info AS pi
             where {cc} and it.id = pi.info_type_id;
         ''',
-        'template_pi_n_r' : f'''
+        'template_pi_n_r': f'''
             select * from name AS n, person_info AS pi
             where {cc} AND n.id = pi.person_id;
         ''',
 
-
-        'template_mc' : f''' select * from movie_companies AS mc where {cc}; ''',
-        'template_cn' : f''' select * from company_name AS cn WHERE {cc}; ''',
-        'template_it' : f''' select * from info_type AS it where {cc}; ''',
-        'template_mi' : f''' select * from movie_info AS mi where {cc}; ''',
-        'template_t' : f''' select * from title AS t where {cc}; ''',
-        'template_an' : f'''select * from aka_name AS an where {cc};''',
-        'template_lt' : f'''select * from link_type AS lt where {cc};''',
-        'template_n' : f'''select * from name AS n where {cc};''',
-        'template_pi' : f'''select * from person_info AS pi where {cc};''',
-        'template_mi_idx' : f'''select * from movie_info_idx AS mi_idx where {cc};''',
-        'template_ct' : f'''select * from company_type AS ct where {cc}''',
-        'template_ci' : f'''select * from cast_info AS ci where {cc};''',
-        'template_cct' : f'''select * from comp_cast_type AS cct where {cc};''',
-        'template_cct1' : f'''select * from comp_cast_type AS cct where {cc};''',
-        'template_cct2' : f'''select * from comp_cast_type AS cct where {cc};''',
-        'template_chn' : f'''select * from char_name AS chn where {cc};''',
-        'template_rt' : f'''select * from role_type as rt where {cc};''',
-        'template_k' : f'''select * from keyword as k where {cc};''',
-        'template_kt' : f'''select * from kind_type AS kt where {cc}''',
-        'template_mc_full' : f''' select * from movie_companies AS mc; ''',
-        'template_cn_full' : f''' select * from company_name AS cn; ''',
-        'template_it_full' : f''' select * from info_type AS it; ''',
-        'template_mi_full' : f''' select * from movie_info AS mi; ''',
-        'template_t_full' : f''' select * from title AS t; ''',
-        'template_an_full' : f'''select * from aka_name AS an;''',
-        'template_lt_full' : f'''select * from link_type AS lt;''',
-        'template_n_full' : f'''select * from name AS n;''',
-        'template_pi_full' : f'''select * from person_info AS pi;''',
-        'template_mi_idx_full' : f'''select * from movie_info_idx AS mi_idx;''',
-        'template_ct_full' : f'''select * from company_type AS ct''',
-        'template_rt_full' : f'''select * from role_type AS rt;''',
-        'template_ci_full' : f'''select * from cast_info AS ci;''',
-        'template_cct_full' : f'''select * from comp_cast_type AS cct;''',
-        'template_chn_full' : f'''select * from char_name AS chn;''',
-        'template_rt_full' : f'''select * from role_type as rt;''',
-        'template_k_full' : f'''select * from keyword as k;''',
-        'template_mk_full' : f'''select * from movie_keyword as mk;''',
-        'template_ml_full' : f'''select * from movie_link as ml;''',
-        'template_aka_t_full' : f'''select * from aka_title AS aka_t;''',
-        'template_cc_full' : f'''select * from complete_cast AS cc;''',
-        'template_kt_full' : f'''select * from kind_type AS kt;''',
+        'template_mc': f''' select * from movie_companies AS mc where {cc}; ''',
+        'template_cn': f''' select * from company_name AS cn WHERE {cc}; ''',
+        'template_it': f''' select * from info_type AS it where {cc}; ''',
+        'template_mi': f''' select * from movie_info AS mi where {cc}; ''',
+        'template_t': f''' select * from title AS t where {cc}; ''',
+        'template_an': f'''select * from aka_name AS an where {cc};''',
+        'template_lt': f'''select * from link_type AS lt where {cc};''',
+        'template_n': f'''select * from name AS n where {cc};''',
+        'template_pi': f'''select * from person_info AS pi where {cc};''',
+        'template_mi_idx': f'''select * from movie_info_idx AS mi_idx where {cc};''',
+        'template_ct': f'''select * from company_type AS ct where {cc}''',
+        'template_ci': f'''select * from cast_info AS ci where {cc};''',
+        'template_cct': f'''select * from comp_cast_type AS cct where {cc};''',
+        'template_cct1': f'''select * from comp_cast_type AS cct where {cc};''',
+        'template_cct2': f'''select * from comp_cast_type AS cct where {cc};''',
+        'template_chn': f'''select * from char_name AS chn where {cc};''',
+        'template_rt': f'''select * from role_type as rt where {cc};''',
+        'template_k': f'''select * from keyword as k where {cc};''',
+        'template_kt': f'''select * from kind_type AS kt where {cc}''',
+        'template_mc_full': f''' select * from movie_companies AS mc; ''',
+        'template_cn_full': f''' select * from company_name AS cn; ''',
+        'template_it_full': f''' select * from info_type AS it; ''',
+        'template_mi_full': f''' select * from movie_info AS mi; ''',
+        'template_t_full': f''' select * from title AS t; ''',
+        'template_an_full': f'''select * from aka_name AS an;''',
+        'template_lt_full': f'''select * from link_type AS lt;''',
+        'template_n_full': f'''select * from name AS n;''',
+        'template_pi_full': f'''select * from person_info AS pi;''',
+        'template_mi_idx_full': f'''select * from movie_info_idx AS mi_idx;''',
+        'template_ct_full': f'''select * from company_type AS ct''',
+        'template_rt_full': f'''select * from role_type AS rt;''',
+        'template_ci_full': f'''select * from cast_info AS ci;''',
+        'template_cct_full': f'''select * from comp_cast_type AS cct;''',
+        'template_chn_full': f'''select * from char_name AS chn;''',
+        'template_rt_full': f'''select * from role_type as rt;''',
+        'template_k_full': f'''select * from keyword as k;''',
+        'template_mk_full': f'''select * from movie_keyword as mk;''',
+        'template_ml_full': f'''select * from movie_link as ml;''',
+        'template_aka_t_full': f'''select * from aka_title AS aka_t;''',
+        'template_cc_full': f'''select * from complete_cast AS cc;''',
+        'template_kt_full': f'''select * from kind_type AS kt;''',
 
     }
-    
+
     basic_tables = {
-            "call_center": [], "catalog_returns": [],
-            "catalog_sales": [], "customer": [], 
-            "customer_address": [], "customer_demographics": [],
-            "date_dim": [],
-            "household_demographics": [],
-            "income_band": [], "item": [],
-            "ship_mode": [], "store": [], "store_sales": [],
-            "warehouse": [], "web_sales": [], "store_returns": []
-        }
+        "call_center": [], "catalog_returns": [],
+        "catalog_sales": [], "customer": [],
+        "customer_address": [], "customer_demographics": [],
+        "date_dim": [],
+        "household_demographics": [],
+        "income_band": [], "item": [],
+        "ship_mode": [], "store": [], "store_sales": [],
+        "warehouse": [], "web_sales": [], "store_returns": []
+    }
 
     querylet_dsb_dict = {
         'template_store_sales_store_returns_l': f"select * from store_sales, store_returns where {cc} and ss_item_sk = sr_item_sk;",
@@ -865,7 +858,7 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_date_dim_store_sales_both': f"select * from date_dim, store_sales where {cc} and {kk} and d_date_sk = ss_sold_date_sk;",
         'template_date_dim_store_sales_l': f"select * from date_dim, store_sales where {cc} and d_date_sk = ss_sold_date_sk;",
         'template_store_store_sales__date_dim': f"select * from store, store_sales, date_dim where {cc} and ss_store_sk = s_store_sk and d_date_sk = ss_sold_date_sk;",
-        
+
         'template_item_store_sales__date_dim': f"select * from store_sales, item, date_dim where {cc} and i_item_sk = ss_item_sk and d_date_sk = ss_sold_date_sk;",
         'template_item_store_sales_l': f"select * from store_sales, item where {cc} and i_item_sk = ss_item_sk;",
         'template_date_dim_web_sales_r': f"select * from date_dim, web_sales where {cc} and ws_sold_date_sk = d_date_sk;",
@@ -908,19 +901,19 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_store_store_returns_l': f"select * from store_returns, store where {cc} and sr_store_sk = s_store_sk;",
         'template_inventory_catalog_sales_r_072': f"select * from catalog_sales JOIN inventory ON (cs_item_sk = inv_item_sk) where {cc};",
         'template_customer_demographics_catalog_sales_r_072': f"select * from catalog_sales JOIN customer_demographics ON (cs_bill_cdemo_sk = cd_demo_sk) where {cc};",
-        
+
         'template_household_demographics_catalog_sales_both': f"select * from household_demographics, catalog_sales where {cc} and {kk} and cs_bill_hdemo_sk = hd_demo_sk;",
         'template_date_dim_catalog_sales_both_072': f"select * from date_dim, catalog_sales where {cc} and {kk} and cs_sold_date_sk = d_date_sk;",
         'template_inventory_item_r_072': f"select * from inventory, item where {cc} and inv_item_sk = i_item_sk;",
-        
+
         'template_customer_address_customer_l_084': f"select * from customer_address, customer where {cc} and c_current_addr_sk = ca_address_sk;",
         'template_income_band_household_demographics_l': f"select * from income_band, household_demographics where {cc} and ib_income_band_sk = hd_income_band_sk;",
         'template_inventory_catalog_sales_r': f"select * from catalog_sales JOIN inventory ON (cs_item_sk = inv_item_sk)  where {cc};",
         'template_inventory_warehouse__catalog_sales': f"select * from catalog_sales JOIN inventory ON (cs_item_sk = inv_item_sk) JOIN warehouse ON (w_warehouse_sk=inv_warehouse_sk) where {cc};",
-        
+
         'template_customer_store_sales_both': f"select * from customer, store_sales where {cc} and {kk} and ss_customer_sk = c_customer_sk;",
         'template_store_customer_address_r': f"select * from customer, store_sales where {cc} and ss_customer_sk = c_customer_sk;",
-        'template_store_sales_date_dim_both':  f"select * from store_sales, date_dim where {cc} and {kk} and d_date_sk = ss_sold_date_sk;",
+        'template_store_sales_date_dim_both': f"select * from store_sales, date_dim where {cc} and {kk} and d_date_sk = ss_sold_date_sk;",
         'template_item_inventory_l': f"select * from item, inventory where {cc} and i_item_sk = inv_item_sk;",
         'template_customer_demographic_web_returns_l': f"select * from customer_demographic, web_returns where {cc} and cd_demo_sk = wr_refunded_cdemo_sk;",
         'template_warehouse_catalog_sales_both': f"select * from warehouse, catalog_sales where {cc} and {kk} and cs_warehouse_sk = w_warehouse_sk;",
@@ -941,7 +934,6 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_call_center': f"select * from call_center where {cc};",
         'template_': f"select * from  where {cc} and",
 
-
         'template_store_full': f"select * from store;",
         'template_warehouse_full': f"select * from warehouse;",
         'template_store_returns_full': f"select * from store_returns;",
@@ -955,192 +947,192 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
 
     querylet_imdb_rob_dict = {
         # robustness
-        'template_mc' : f''' select * from {split}_movie_companies_{instance} AS mc where {cc}; ''',
-        'template_cn' : f''' select * from {split}_company_name_{instance} AS cn WHERE {cc}; ''',
-        'template_it' : f''' select * from {split}_info_type_{instance} AS it where {cc}; ''',
-        'template_mi' : f''' select * from {split}_movie_info_{instance} AS mi where {cc}; ''',
-        'template_t' : f''' select * from {split}_title_{instance} AS t where {cc}; ''',
-        'template_an' : f'''select * from {split}_aka_name_{instance} AS an where {cc};''',
-        'template_lt' : f'''select * from {split}_link_type_{instance} AS lt where {cc};''',
-        'template_n' : f'''select * from {split}_name_{instance} AS n where {cc};''',
-        'template_pi' : f'''select * from {split}_person_info_{instance} AS pi where {cc};''',
-        'template_mi_idx' : f'''select * from {split}_movie_info_idx_{instance} AS mi_idx where {cc};''',
-        'template_ct' : f'''select * from {split}_company_type_{instance} AS ct where {cc}''',
-        'template_ci' : f'''select * from {split}_cast_info_{instance} AS ci where {cc};''',
-        'template_cct' : f'''select * from {split}_comp_cast_type_{instance} AS cct where {cc};''',
-        'template_cct1' : f'''select * from {split}_comp_cast_type_{instance} AS cct1 where {cc};''',
-        'template_cct2' : f'''select * from {split}_comp_cast_type_{instance} AS cct2 where {cc};''',
-        'template_chn' : f'''select * from {split}_char_name_{instance} AS chn where {cc};''',
-        'template_rt' : f'''select * from {split}_role_type_{instance} as rt where {cc};''',
-        'template_k' : f'''select * from {split}_keyword_{instance} as k where {cc};''',
-        'template_kt' : f'''select * from {split}_kind_type_{instance} AS kt where {cc}''',
-        'template_mc_full' : f''' select * from {split}_movie_companies_{instance} AS mc; ''',
-        'template_cn_full' : f''' select * from {split}_company_name_{instance} AS cn; ''',
-        'template_it_full' : f''' select * from {split}_info_type_{instance} AS it; ''',
-        'template_mi_full' : f''' select * from {split}_movie_info_{instance} AS mi; ''',
-        'template_t_full' : f''' select * from {split}_title_{instance} AS t; ''',
-        'template_an_full' : f'''select * from {split}_aka_name_{instance} AS an;''',
-        'template_lt_full' : f'''select * from {split}_link_type_{instance} AS lt;''',
-        'template_n_full' : f'''select * from {split}_name_{instance} AS n;''',
-        'template_pi_full' : f'''select * from {split}_person_info_{instance} AS pi;''',
-        'template_mi_idx_full' : f'''select * from {split}_movie_info_idx_{instance} AS mi_idx;''',
-        'template_ct_full' : f'''select * from {split}_company_type_{instance} AS ct''',
-        'template_rt_full' : f'''select * from {split}_role_type_{instance} AS rt;''',
-        'template_ci_full' : f'''select * from {split}_cast_info_{instance} AS ci;''',
-        'template_cct_full' : f'''select * from {split}_comp_cast_type_{instance} AS cct;''',
-        'template_chn_full' : f'''select * from {split}_char_name_{instance} AS chn;''',
-        'template_rt_full' : f'''select * from {split}_role_type_{instance} as rt;''',
-        'template_k_full' : f'''select * from {split}_keyword_{instance} as k;''',
-        'template_mk_full' : f'''select * from {split}_movie_keyword_{instance} as mk;''',
-        'template_ml_full' : f'''select * from {split}_movie_link_{instance} as ml;''',
-        'template_aka_t_full' : f'''select * from {split}_aka_title_{instance} AS aka_t;''',
-        'template_cc_full' : f'''select * from {split}_complete_cast_{instance} AS cc;''',
-        'template_kt_full' : f'''select * from {split}_kind_type_{instance} AS kt;''',
+        'template_mc': f''' select * from {split}_movie_companies_{instance} AS mc where {cc}; ''',
+        'template_cn': f''' select * from {split}_company_name_{instance} AS cn WHERE {cc}; ''',
+        'template_it': f''' select * from {split}_info_type_{instance} AS it where {cc}; ''',
+        'template_mi': f''' select * from {split}_movie_info_{instance} AS mi where {cc}; ''',
+        'template_t': f''' select * from {split}_title_{instance} AS t where {cc}; ''',
+        'template_an': f'''select * from {split}_aka_name_{instance} AS an where {cc};''',
+        'template_lt': f'''select * from {split}_link_type_{instance} AS lt where {cc};''',
+        'template_n': f'''select * from {split}_name_{instance} AS n where {cc};''',
+        'template_pi': f'''select * from {split}_person_info_{instance} AS pi where {cc};''',
+        'template_mi_idx': f'''select * from {split}_movie_info_idx_{instance} AS mi_idx where {cc};''',
+        'template_ct': f'''select * from {split}_company_type_{instance} AS ct where {cc}''',
+        'template_ci': f'''select * from {split}_cast_info_{instance} AS ci where {cc};''',
+        'template_cct': f'''select * from {split}_comp_cast_type_{instance} AS cct where {cc};''',
+        'template_cct1': f'''select * from {split}_comp_cast_type_{instance} AS cct1 where {cc};''',
+        'template_cct2': f'''select * from {split}_comp_cast_type_{instance} AS cct2 where {cc};''',
+        'template_chn': f'''select * from {split}_char_name_{instance} AS chn where {cc};''',
+        'template_rt': f'''select * from {split}_role_type_{instance} as rt where {cc};''',
+        'template_k': f'''select * from {split}_keyword_{instance} as k where {cc};''',
+        'template_kt': f'''select * from {split}_kind_type_{instance} AS kt where {cc}''',
+        'template_mc_full': f''' select * from {split}_movie_companies_{instance} AS mc; ''',
+        'template_cn_full': f''' select * from {split}_company_name_{instance} AS cn; ''',
+        'template_it_full': f''' select * from {split}_info_type_{instance} AS it; ''',
+        'template_mi_full': f''' select * from {split}_movie_info_{instance} AS mi; ''',
+        'template_t_full': f''' select * from {split}_title_{instance} AS t; ''',
+        'template_an_full': f'''select * from {split}_aka_name_{instance} AS an;''',
+        'template_lt_full': f'''select * from {split}_link_type_{instance} AS lt;''',
+        'template_n_full': f'''select * from {split}_name_{instance} AS n;''',
+        'template_pi_full': f'''select * from {split}_person_info_{instance} AS pi;''',
+        'template_mi_idx_full': f'''select * from {split}_movie_info_idx_{instance} AS mi_idx;''',
+        'template_ct_full': f'''select * from {split}_company_type_{instance} AS ct''',
+        'template_rt_full': f'''select * from {split}_role_type_{instance} AS rt;''',
+        'template_ci_full': f'''select * from {split}_cast_info_{instance} AS ci;''',
+        'template_cct_full': f'''select * from {split}_comp_cast_type_{instance} AS cct;''',
+        'template_chn_full': f'''select * from {split}_char_name_{instance} AS chn;''',
+        'template_rt_full': f'''select * from {split}_role_type_{instance} as rt;''',
+        'template_k_full': f'''select * from {split}_keyword_{instance} as k;''',
+        'template_mk_full': f'''select * from {split}_movie_keyword_{instance} as mk;''',
+        'template_ml_full': f'''select * from {split}_movie_link_{instance} as ml;''',
+        'template_aka_t_full': f'''select * from {split}_aka_title_{instance} AS aka_t;''',
+        'template_cc_full': f'''select * from {split}_complete_cast_{instance} AS cc;''',
+        'template_kt_full': f'''select * from {split}_kind_type_{instance} AS kt;''',
 
-         'template_mk_k_r' : f'''
+        'template_mk_k_r': f'''
             SELECT * FROM {split}_keyword_{instance} AS k, {split}_movie_keyword_{instance} AS mk
             WHERE {cc} AND mk.keyword_id = k.id;
             ''',
-        'template_mk_mi_r' : f'''
+        'template_mk_mi_r': f'''
             SELECT * FROM {split}_movie_info_{instance} AS mi, {split}_movie_keyword_{instance} AS mk
             WHERE {cc} AND mk.movie_id = mi.movie_id;
         ''',
-        'template_t_mi_both' : f'''
+        'template_t_mi_both': f'''
             SELECT * FROM {split}_movie_info_{instance} AS mi, {split}_title_{instance} AS t
             WHERE {cc} and {kk} AND t.id = mi.movie_id;
         ''',
-        'template_mi_idx_it_both' : f'''
+        'template_mi_idx_it_both': f'''
             SELECT * FROM {split}_info_type_{instance} AS it, {split}_movie_info_idx_{instance} AS mi_idx
             where {cc} and {kk} and it.id = mi_idx.info_type_id;
         ''',
-        'template_mk_mi_idx_r' : f'''
+        'template_mk_mi_idx_r': f'''
             select * from {split}_movie_info_idx_{instance} AS mi_idx, {split}_movie_keyword_{instance} AS mk
             where {cc} and mk.movie_id = mi_idx.movie_id;
         ''',
-        'template_t_mi_idx_both' : f'''
+        'template_t_mi_idx_both': f'''
             select * from {split}_movie_info_idx_{instance} AS mi_idx, {split}_title_{instance} AS t
             where {cc} and {kk} and t.id = mi_idx.movie_id;
         ''',
-        'template_t_mk_l' : f'''
+        'template_t_mk_l': f'''
             SELECT * FROM {split}_movie_keyword_{instance} AS mk, {split}_title_{instance} AS t
             WHERE {cc} AND t.id = mk.movie_id;
         ''',
-        'template_mi_it_both' : f'''
+        'template_mi_it_both': f'''
             SELECT * FROM {split}_movie_info_{instance} AS mi, {split}_info_type_{instance} AS it
             WHERE {cc} AND {kk} and it.id = mi.info_type_id;
         ''',
-        'template_t_kt_both' : f'''
+        'template_t_kt_both': f'''
             select * from {split}_kind_type_{instance} AS kt, {split}_title_{instance} AS t
             where {cc} and {kk} and kt.id = t.kind_id;
         ''',
-        'template_mi_idx_mi_both' : f'''
+        'template_mi_idx_mi_both': f'''
             select * from {split}_movie_info_{instance} AS mi, {split}_movie_info_idx_{instance} AS mi_idx
             where {cc} and {kk} and mi.movie_id = mi_idx.movie_id;
         ''',
-        'template_n_ci_l' : f'''
+        'template_n_ci_l': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_name_{instance} AS n
             WHERE {cc} AND n.id = ci.person_id;
         ''',
-        'template_mc_cn_r' : f'''
+        'template_mc_cn_r': f'''
             SELECT * FROM {split}_company_name_{instance} AS cn, {split}_movie_companies_{instance} AS mc
             WHERE {cc} AND mc.company_id = cn.id;
         ''',
-        'template_cct_cc_l' : f'''
+        'template_cct_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct
             where {cc} AND cct.id = cc.status_id;
         ''',
-        'template_mi_ci_both' : f'''
+        'template_mi_ci_both': f'''
             select * from {split}_cast_info_{instance} AS ci, {split}_movie_info_{instance} AS mi
             where {cc} and {kk} and mi.movie_id = ci.movie_id;
         ''',
-        'template_mi_idx_ci_r' : f'''
+        'template_mi_idx_ci_r': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_movie_info_idx_{instance} AS mi_idx 
             where {cc} AND ci.movie_id = mi_idx.movie_id;
         ''',
-        'template_mk_ci_r' : f'''
+        'template_mk_ci_r': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_movie_keyword_{instance} AS mk
             where {cc} and ci.movie_id = mk.movie_id;
         ''',
-        'template_n_ci_both' : f'''
+        'template_n_ci_both': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_name_{instance} AS n
             WHERE {cc} AND {kk} AND n.id = ci.person_id;
         ''',
-        'template_t_ci_both' : f'''
+        'template_t_ci_both': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_title_{instance} AS t
             WHERE {cc} AND {kk} AND ci.movie_id = t.id;
         ''',
-        'template_mi_idx_it_r' : f'''
+        'template_mi_idx_it_r': f'''
             SELECT * FROM {split}_info_type_{instance} AS it, {split}_movie_info_idx_{instance} AS mi_idx
             where {cc} and it.id = mi_idx.info_type_id;
         ''',
-        'template_mi_idx_mi_r' : f'''
+        'template_mi_idx_mi_r': f'''
             select * from {split}_movie_info_{instance} AS mi, {split}_movie_info_idx_{instance} AS mi_idx
             where {cc} and mi.movie_id = mi_idx.movie_id;
         ''',
-        'template_t_mi_idx_l' : f'''
+        'template_t_mi_idx_l': f'''
             select * from {split}_movie_info_idx_{instance} AS mi_idx, {split}_title_{instance} AS t
             where {cc} and t.id = mi_idx.movie_id;
         ''',
-        'template_ci_cc_l' : f'''
+        'template_ci_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc, {split}_cast_info_{instance} AS ci
             where {cc} and ci.movie_id = cc.movie_id;
         ''',
-        'template_mi_cc_l' : f'''
+        'template_mi_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc, {split}_movie_info_{instance} AS mi
             where {cc} and mi.movie_id = cc.movie_id;
         ''',
-        'template_t_cc_l' : f'''
+        'template_t_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc, {split}_title_{instance} AS t
             where {cc} and t.id = cc.movie_id;
         ''',
-        'template_ci_an_l' : f'''
+        'template_ci_an_l': f'''
             select * from {split}_aka_name_{instance} AS an, {split}_cast_info_{instance} AS ci
             where {cc} and an.person_id = ci.person_id;
         ''',
-        'template_n_an_l' : f'''
+        'template_n_an_l': f'''
             SELECT * FROM {split}_aka_name_{instance} AS an, {split}_name_{instance} AS n
             WHERE {cc} AND an.person_id = n.id;
         ''',
-        'template_ci_chn_l' : f'''
+        'template_ci_chn_l': f'''
             SELECT * FROM {split}_char_name_{instance} AS chn, {split}_cast_info_{instance} AS ci
             where {cc} and chn.id = ci.person_role_id;
         ''',
-        'template_mc_ci_both' : f'''
+        'template_mc_ci_both': f'''
             SELECT * FROM {split}_cast_info_{instance} AS ci, {split}_movie_companies_{instance} AS mc
             WHERE {cc} and {kk} AND ci.movie_id = mc.movie_id;
         ''',
-        'template_rt_ci_both' : f'''
+        'template_rt_ci_both': f'''
             select * from {split}_role_type_{instance} AS rt, {split}_cast_info_{instance} AS ci
             where {cc} and {kk} AND ci.role_id = rt.id;
         ''',
-        'template_mi_mc_both' : f'''
+        'template_mi_mc_both': f'''
             SELECT * FROM {split}_movie_companies_{instance} AS mc, {split}_movie_info_{instance} AS mi
             WHERE {cc} AND {kk} AND mi.movie_id = mc.movie_id;
         ''',
-        'template_t_mc_both' : f'''
+        'template_t_mc_both': f'''
             SELECT * FROM {split}_movie_companies_{instance} AS mc, {split}_title_{instance} AS t
             WHERE {cc} AND {kk} AND t.id = mc.movie_id;
         ''',
-        'template_mc_cn_both' : f'''
+        'template_mc_cn_both': f'''
             SELECT * FROM {split}_company_name_{instance} AS cn, {split}_movie_companies_{instance} AS mc
             WHERE {cc} AND {kk} AND mc.company_id = cn.id;
         ''',
-        'template_mc_ct_both' : f'''
+        'template_mc_ct_both': f'''
             SELECT * FROM {split}_company_type_{instance} AS ct, {split}_movie_companies_{instance} AS mc
             WHERE {cc} AND {kk} AND ct.id = mc.company_type_id;
         ''',
-        'template_mk_mc_r' : f'''
+        'template_mk_mc_r': f'''
             select * from {split}_movie_companies_{instance} AS mc, {split}_movie_keyword_{instance} AS mk
             where {cc} and mk.movie_id = mc.movie_id;
         ''',
-        'template_cct1_cc_l' : f'''
+        'template_cct1_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct
             where {cc} AND cct.id = cc.subject_id;
         ''',
-        'template_cct2_cc_l' : f'''
+        'template_cct2_cc_l': f'''
             select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct
             where {cc} AND cct.id = cc.status_id;
-        ''', 
+        ''',
     }
     if db == 'imdb':
         if split is None:
@@ -1160,7 +1152,7 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
             return gen_one_table_query_full(template_name.split('template_')[1].split('_full')[0])
         else:
             return querylet_dsb_dict[template_name]
-        
+
 
 def stats_join_querylet(left_alias, right_alias, l_r_b, cc, kk):
     right = basic_tables_stats[right_alias]
@@ -1169,19 +1161,19 @@ def stats_join_querylet(left_alias, right_alias, l_r_b, cc, kk):
     #     left_con = 'Id'
     # else:
     #     left_con = 'PostId'
-    
+
     # right_con = 'PostId'
 
     # if left_alias == 'u':
     #     left_con = 'Id'
     # else:
     #     left_con = 'UserId'
-    
+
     # right_con = 'UserId'
 
     right_con = 'UserId'
     left_con = 'UserId'
-    
+
     if l_r_b == 'l':
         return f'select * from {left} as {left_alias}, {right} as {right_alias} where {left_alias}.{left_con}={right_alias}.{right_con} and {cc};'
     elif l_r_b == 'r':
@@ -1193,6 +1185,7 @@ def stats_join_querylet(left_alias, right_alias, l_r_b, cc, kk):
 def gen_one_table_query(table_name, condition):
     return f'select * from {table_name} where {condition};'
 
+
 def gen_one_table_query_full(table_name):
     return f'select * from {table_name};'
 
@@ -1202,8 +1195,6 @@ def gen_one_table_query_stats(table_name, alias, condition):
 
 
 def stats_single_querylet(cc, template_name):
-
-
     if template_name in basic_tables_stats.keys():
         return gen_one_table_query_stats(basic_tables_stats[template_name], template_name, cc)
     elif '_full' in template_name:

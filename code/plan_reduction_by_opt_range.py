@@ -12,19 +12,19 @@ def reduce_by_opt_range(plan_cost_list, K):
         min(plan_cost_list[plan_id][s] for plan_id in range(plan_size))
         for s in range(sample_size)
     ]
-    
-    uncovered_sels = set(list(range(sample_size))) # covered sel samples sets
-    available_plan_sets = set(list(range(len(plan_cost_list)))) # available plans
+
+    uncovered_sels = set(list(range(sample_size)))  # covered sel samples sets
+    available_plan_sets = set(list(range(len(plan_cost_list))))  # available plans
     sample_to_plan_dict = {}
     saved_plan = []
     coverage_percentage = []
-    
+
     while len(uncovered_sels) != 0 and len(saved_plan) < K and len(available_plan_sets) > 0:
         # find the largest opt range plan in the plan sets
         best_coverage = set()
         best_plan_id = -1
         for plan_id in available_plan_sets:
-            
+
             cur_covered_sel = cal_opt_range(plan_cost_list[plan_id], opt_costs, uncovered_sels)
             if len(cur_covered_sel) > len(best_coverage):
                 best_coverage = cur_covered_sel
@@ -32,13 +32,14 @@ def reduce_by_opt_range(plan_cost_list, K):
         if best_plan_id == -1:
             break
         saved_plan.append(best_plan_id)
-        coverage_percentage.append(round(len(best_coverage)/sample_size, 5))
+        coverage_percentage.append(round(len(best_coverage) / sample_size, 5))
         available_plan_sets.remove(best_plan_id)
         uncovered_sels -= best_coverage
         for sel_id in best_coverage:
-            sample_to_plan_dict[sel_id] = len(saved_plan)-1 # new plan id
-    
-    print("Robustness range: ", coverage_percentage, sum(coverage_percentage), "original plan size: ", plan_size, f"reduce to {len(saved_plan)} {saved_plan}")
+            sample_to_plan_dict[sel_id] = len(saved_plan) - 1  # new plan id
+
+    print("Robustness range: ", coverage_percentage, sum(coverage_percentage), "original plan size: ", plan_size,
+          f"reduce to {len(saved_plan)} {saved_plan}")
     return saved_plan, sample_to_plan_dict
 
 
@@ -53,19 +54,19 @@ def reduce_by_opt_range_evaluate(plan_cost_list, sampled_plan_cost_list, K):
         min(plan_cost_list[plan_id][s] for plan_id in range(plan_size))
         for s in range(sample_size)
     ]
-    
-    uncovered_sels = set(list(range(sample_size))) # covered sel samples sets
-    available_plan_sets = set(list(range(len(sampled_plan_cost_list)))) # available plans
+
+    uncovered_sels = set(list(range(sample_size)))  # covered sel samples sets
+    available_plan_sets = set(list(range(len(sampled_plan_cost_list))))  # available plans
     sample_to_plan_dict = {}
     saved_plan = []
     coverage_percentage = []
-    
+
     while len(uncovered_sels) != 0 and len(saved_plan) < K and len(available_plan_sets) > 0:
         # find the largest opt range plan in the plan sets
         best_coverage = set()
         best_plan_id = -1
         for plan_id in available_plan_sets:
-            
+
             cur_covered_sel = cal_opt_range(sampled_plan_cost_list[plan_id], opt_costs, uncovered_sels)
             if len(cur_covered_sel) > len(best_coverage):
                 best_coverage = cur_covered_sel
@@ -76,19 +77,16 @@ def reduce_by_opt_range_evaluate(plan_cost_list, sampled_plan_cost_list, K):
             available_plan_sets.pop()
             continue
         saved_plan.append(best_plan_id)
-        coverage_percentage.append(round(len(best_coverage)/sample_size, 5))
+        coverage_percentage.append(round(len(best_coverage) / sample_size, 5))
         available_plan_sets.remove(best_plan_id)
         uncovered_sels -= best_coverage
         for sel_id in best_coverage:
-            sample_to_plan_dict[sel_id] = len(saved_plan)-1 # new plan id
-    
-    print("-- uncovered: ", round(len(uncovered_sels)/sample_size, 3) )
-    print("-- Robustness range: ", coverage_percentage, sum(coverage_percentage), "original plan size: ", plan_size, f"reduce to {len(saved_plan)} {saved_plan}")
+            sample_to_plan_dict[sel_id] = len(saved_plan) - 1  # new plan id
+
+    print("-- uncovered: ", round(len(uncovered_sels) / sample_size, 3))
+    print("-- Robustness range: ", coverage_percentage, sum(coverage_percentage), "original plan size: ", plan_size,
+          f"reduce to {len(saved_plan)} {saved_plan}")
     return saved_plan, sample_to_plan_dict
-
-
-
-
 
 
 def cal_opt_range(plan_cost, opt_cost, uncovered_sels):

@@ -1,5 +1,5 @@
 import psycopg2
-from postgres import *
+
 from utility import get_count
 
 random_seeds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -28,7 +28,6 @@ def verify_by_multiple_random_instances(i, window_size):
     cursor_ = conn.cursor()
     cache = {}
 
-
     # Define the number of samples and the sampling range
     raw_size_title = 2528312
     new_tables = []
@@ -37,9 +36,7 @@ def verify_by_multiple_random_instances(i, window_size):
     tables_to_sample_by_title = ["movie_companies", "movie_keyword", "cast_info", "movie_link", "movie_info",
                                  "complete_cast", "aka_title", "movie_info_idx"]
 
-
     try:
-
 
         # Construct the SQL query to generate the random_title table for the current sample
         query = f"""
@@ -49,7 +46,7 @@ def verify_by_multiple_random_instances(i, window_size):
             REPEATABLE({random_seeds[i]}) 
             ORDER BY production_year;
         """
-        
+
         # Execute the query
         new_tables.append(f"random_title_{i}")
         cursor_.execute(query)
@@ -85,12 +82,9 @@ def verify_by_multiple_random_instances(i, window_size):
         """
         new_tables.append(f"random_keyword_{i}")
         cursor_.execute(query_)
-        
+
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
-
-
 
         # Generate sampled company_name based on movie_companies
         query_ = f"""
@@ -107,7 +101,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate sampled aka_name based on cast_info
         query_ = f"""
             CREATE TABLE random_aka_name_{i} AS
@@ -122,8 +115,6 @@ def verify_by_multiple_random_instances(i, window_size):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
-
 
         # Generate sampled name based on aka_name
         query_ = f"""
@@ -140,8 +131,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
-
         # Generate sampled person_info based on name
         query_ = f"""
             CREATE TABLE random_person_info_{i} AS
@@ -157,9 +146,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
-
-
         # Generate sampled link_type based on movie_link
         query_ = f"""
             CREATE TABLE random_link_type_{i} AS
@@ -174,9 +160,6 @@ def verify_by_multiple_random_instances(i, window_size):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
-
-
 
         # Generate sampled info_type based on person_info and movie_info
         query_ = f"""
@@ -199,7 +182,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-        
         # Generate company_type
         query_ = f"""
             CREATE TABLE random_company_type_{i} AS
@@ -214,7 +196,6 @@ def verify_by_multiple_random_instances(i, window_size):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
 
         # Generate random_kind_type
         query_ = f"""
@@ -231,7 +212,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate char_name
         query_ = f"""
             CREATE TABLE random_char_name_{i} AS
@@ -247,7 +227,6 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate role_type
         query_ = f"""
             CREATE TABLE random_role_type_{i} AS
@@ -262,7 +241,6 @@ def verify_by_multiple_random_instances(i, window_size):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
 
         # Generate comp_cast_type
         query_ = f"""
@@ -282,12 +260,10 @@ def verify_by_multiple_random_instances(i, window_size):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # create primary key
         for t in new_tables:
             query_ = f"ALTER TABLE {t} ADD PRIMARY KEY (id);"
             cursor_.execute(query_)
-
 
         # create index for fk
         index_query = f'''create index company_id_movie_companies on movie_companies(company_id);
@@ -323,29 +299,48 @@ def verify_by_multiple_random_instances(i, window_size):
 
         # add fk
         fk_query = '''
-                ALTER TABLE title ADD FOREIGN KEY (kind_id) REFERENCES kind_type;
-                ALTER TABLE aka_name ADD FOREIGN KEY (id) REFERENCES name;
-                -- psql:add_fks.sql:3: ERROR:  insert or update on table "cast_info" violates foreign key constraint "cast_info_person_id_fkey"
-                --   DETAIL:  Key (person_id)=(901344) is not present in table "aka_name".
-                -- ALTER TABLE cast_info ADD FOREIGN KEY (person_id) REFERENCES aka_name;
-                ALTER TABLE cast_info ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE cast_info ADD FOREIGN KEY (person_role_id) REFERENCES char_name;
-                ALTER TABLE cast_info ADD FOREIGN KEY (role_id) REFERENCES role_type;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (subject_id) REFERENCES comp_cast_type;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (status_id) REFERENCES comp_cast_type;
-                ALTER TABLE movie_companies ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-                ALTER TABLE movie_info_idx ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info_idx ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-                ALTER TABLE movie_keyword ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_keyword ADD FOREIGN KEY (keyword_id) REFERENCES keyword;
-                ALTER TABLE movie_link ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_link ADD FOREIGN KEY (link_type_id) REFERENCES link_type;
-                ALTER TABLE person_info ADD FOREIGN KEY (person_id) REFERENCES name;
-                ALTER TABLE person_info ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-            '''
+                   ALTER TABLE title
+                       ADD FOREIGN KEY (kind_id) REFERENCES kind_type;
+                   ALTER TABLE aka_name
+                       ADD FOREIGN KEY (id) REFERENCES name;
+                   -- psql:add_fks.sql:3: ERROR:  insert or update on table "cast_info" violates foreign key constraint "cast_info_person_id_fkey"
+                   --   DETAIL:  Key (person_id)=(901344) is not present in table "aka_name".
+                   -- ALTER TABLE cast_info ADD FOREIGN KEY (person_id) REFERENCES aka_name;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (person_role_id) REFERENCES char_name;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (role_id) REFERENCES role_type;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (subject_id) REFERENCES comp_cast_type;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (status_id) REFERENCES comp_cast_type;
+                   ALTER TABLE movie_companies
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
+                   ALTER TABLE movie_info_idx
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info_idx
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
+                   ALTER TABLE movie_keyword
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_keyword
+                       ADD FOREIGN KEY (keyword_id) REFERENCES keyword;
+                   ALTER TABLE movie_link
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_link
+                       ADD FOREIGN KEY (link_type_id) REFERENCES link_type;
+                   ALTER TABLE person_info
+                       ADD FOREIGN KEY (person_id) REFERENCES name;
+                   ALTER TABLE person_info
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type; \
+                   '''
         # TODO check if alter successfully
         fk_query = fk_query.replace(' ADD ', f'_{i} ADD ')
         fk_query = fk_query.replace(';', f'_{i};')
@@ -353,7 +348,6 @@ def verify_by_multiple_random_instances(i, window_size):
         fk_query = fk_query.replace('REFERENCES ', f'REFERENCES random_')
         cursor_.execute(fk_query)
         print(fk_query)
-
 
         # create histgram
         cursor_.execute("ANALYZE VERBOSE;")
@@ -366,7 +360,6 @@ def verify_by_multiple_random_instances(i, window_size):
         conn.close()
         return new_tables
     print(cache)
-        
 
     # Close the database connection
     conn.close()
@@ -410,7 +403,7 @@ def drop_sampled_tables(i):
     )
     conn.set_session(autocommit=True)
     cursor_ = conn.cursor()
-    
+
     # backup table prefix
     table_prefixes = [
         "random_title_base",
@@ -443,7 +436,6 @@ def drop_sampled_tables(i):
         cursor_.execute(query)
 
 
-
 ''' backup
 drop table random_title_0 CASCADE;
 drop table random_movie_companies_0 CASCADE;
@@ -472,20 +464,17 @@ drop table random_comp_cast_type_0 CASCADE;
 #####################
 # main
 def main():
-    
     # TODO: change range
     for s in range(0, 9):
-    # for s in [1]:
+        # for s in [1]:
         print(s)
         # drop_sampled_tables(s)
 
     for s in range(0, 9):
-    # for s in [1]:
+        # for s in [1]:
         print(s)
         # verify_by_multiple_random_instances(s, 20)
 
 
-    
-    
 if __name__ == "__main__":
     main()

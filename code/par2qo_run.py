@@ -1,8 +1,4 @@
-from diagram import *
-from diagram_nearest import *
-from diagram_best_cost import *
-from diagram_querylog import *
-from diagram_querylog_w_sample import * 
+from diagram_querylog_w_sample import *
 from pqo_plan_evaluate import *
 
 # kepler
@@ -43,14 +39,14 @@ if False:
                     pqo_result_file = f"./reuse/imdbloadbase/kepler/robust/{template_id}_{split}_db{db_ins}_{w}_training_size_50.csv"
                     summary_file = f"./pqo_result/imdbloadbase/kepler/robust/{split}/{template_id}_db{db_ins}_{w}_kepler_training_size_50_mixture_result.txt"
                     log_file = f"./pqo_result/imdbloadbase/kepler/robust/{split}/{template_id}_db{db_ins}_{w}_kepler_training_size_50_mixture_result.csv"
-                    
+
                     pqo_data = pd.read_csv(pqo_result_file)
-                    results = kepler_robust_latency(pqo_data, template_id, w, split=split, rob_verify=db_ins, log_file=log_file)
+                    results = kepler_robust_latency(pqo_data, template_id, w, split=split, rob_verify=db_ins,
+                                                    log_file=log_file)
                     with open(summary_file, 'w') as file:
                         for value in results:
                             file.write(f"{value}\n")
                         file.write(f"\n")
-
 
 # on-demand pqo
 if False:
@@ -58,7 +54,7 @@ if False:
         q = str(q)
         template_id = q + "-0"
         for w in ["cardinality", "kepler", "csv", ]:
-            pqo_result_file= f"reuse/imdbloadbase/on-demand/{w}_workload/pqo-q{q}-t0-50-b0.5.csv"
+            pqo_result_file = f"reuse/imdbloadbase/on-demand/{w}_workload/pqo-q{q}-t0-50-b0.5.csv"
             output_file = f"./pqo_result/imdbloadbase/ondemand/{template_id}_workload_{w}_ondemand_training_size_50.csv"
             summary_file = f"./pqo_result/imdbloadbase/ondemand/{template_id}_workload_{w}_ondemand_training_size_50_summary.csv"
             # pqo_data = pd.read_csv(pqo_result_file, encoding='ISO-8859-1')
@@ -79,22 +75,24 @@ if __name__ == "__main__":
     for q_id in []:
         q_id = str(q_id)
         for split in ['category', 'sliding', 'random']:
-            if split == 'sliding': instance_id = 4
-            else: instance_id = 1
+            if split == 'sliding':
+                instance_id = 4
+            else:
+                instance_id = 1
             for t_id in ["0"]:
                 for N in [50]:
                     for b in [0.5]:
                         for wn in ["cardinality", "kepler", "csv", ]:
-                            test = Diagram(db_name="imdbloadbase", 
-                                        workload_name=wn, 
-                                        query_id=q_id, 
-                                        template_id=t_id, 
-                                        n_in_name=50, 
-                                        b=b, 
-                                        debug=False, 
-                                        mixture_test=False, 
-                                        rob_verify=split, 
-                                        ins_id=str(instance_id))
+                            test = Diagram(db_name="imdbloadbase",
+                                           workload_name=wn,
+                                           query_id=q_id,
+                                           template_id=t_id,
+                                           n_in_name=50,
+                                           b=b,
+                                           debug=False,
+                                           mixture_test=False,
+                                           rob_verify=split,
+                                           ins_id=str(instance_id))
                             try:
                                 test.pqoByFeatureCollection(N=N)
                                 test.evaluate(exe=True, rob_verify=instance_id, split=split, R=0)
@@ -108,22 +106,22 @@ if __name__ == "__main__":
         n = 50
         b = 0.5
         for N in [50]:
-        
+
             for remained_plan_size in [0]:
                 for wn in ["cardinality", "kepler", "csv", ]:
                     for mixture_test in [False, True]:
-                        test = Diagram(db_name="imdbloadbase", 
-                                    workload_name=wn, 
-                                    query_id=q_id, 
-                                    template_id=t_id, 
-                                    n_in_name=n, 
-                                    b=b, 
-                                    debug=False, 
-                                    mixture_test=mixture_test, 
-                                    rob_verify=None, 
-                                    ins_id=None)
+                        test = Diagram(db_name="imdbloadbase",
+                                       workload_name=wn,
+                                       query_id=q_id,
+                                       template_id=t_id,
+                                       n_in_name=n,
+                                       b=b,
+                                       debug=False,
+                                       mixture_test=mixture_test,
+                                       rob_verify=None,
+                                       ins_id=None)
                         test.pqoByFeatureCollection(N=N)
                         test.evaluate(exe=True, rob_verify=False, R=remained_plan_size, prune='sim')
-                    print("*"*50 + f" {q_id} - {wn} - {N} finished" + "*"*50)
-        print("="*50)
+                    print("*" * 50 + f" {q_id} - {wn} - {N} finished" + "*" * 50)
+        print("=" * 50)
         print()

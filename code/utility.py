@@ -1,16 +1,18 @@
-from tqdm import tqdm
-import numpy as np
 import math
-import time
-import multiprocessing
 import matplotlib.pyplot as plt
+import multiprocessing
+import numpy as np
 import re
+import time
+from tqdm import tqdm
+
 
 def card(a):
     if int(a) == 0:
         return 1
     else:
         return int(a)
+
 
 def list_multiply(a, b):
     assert len(a) == len(b), "Input lists have different length."
@@ -23,8 +25,10 @@ def list_multiply(a, b):
 def yuxi(i, order):
     return ' (yuxi_' + str(i) + ' ' + order[i] + ') '
 
+
 def yuxi_short(i, order):
     return ' yuxi_' + str(i) + ' ' + order[i]
+
 
 def yuxi_card(join_list, rows):
     card_str = 'Rows('
@@ -34,7 +38,7 @@ def yuxi_card(join_list, rows):
 
 
 def join_hint(join_list, mtd=None):
-    join_str =[]
+    join_str = []
     if mtd is None:
         join_str = '('
     else:
@@ -56,6 +60,7 @@ order = ['k', 'ml', 'cc']
 Change the original json file to analyzable json file
 TODO: Try to use jsonlines to read it
 """
+
 
 def clean(json_file, new_json_file, del_line_key=None):
     if del_line_key is None:
@@ -133,9 +138,9 @@ def find_bin_id_from_err_hist_list(est_card, raw_card, cur_dim, err_info_dict):
     else:
         # sometimes for table with no local selection conditions, we don't have error data on that one
         return -1
-    
+
     for j in range(len(cur_err_hist)):
-        if est_card[cur_dim] / (raw_card[cur_dim]+1) < cur_err_hist[j][0][0]:
+        if est_card[cur_dim] / (raw_card[cur_dim] + 1) < cur_err_hist[j][0][0]:
             break
         r = j
     return r
@@ -151,12 +156,12 @@ def gen_center_from_err_dist(est_card, raw_card, cur_dim, err_info_dict, num_of_
             center.append(0)
         else:
             r = find_bin_id_from_err_hist_list(est_card, raw_card, cur_dim=table_id, err_info_dict=err_info_dict)
-            
-            if r == -1: # this dimension doesn't have any error
+
+            if r == -1:  # this dimension doesn't have any error
                 center.append(0)
             else:
                 if debug:
-                    print(f"Current dim {table_id}'s est sel: {est_card[table_id]/raw_card[table_id]}, bin id: {r}")
+                    print(f"Current dim {table_id}'s est sel: {est_card[table_id] / raw_card[table_id]}, bin id: {r}")
                 pdf_of_err = err_info_dict[table_id][2][r]
                 if naive:
                     err_sample = np.random.normal(loc=pdf_of_err[0], scale=pdf_of_err[1], size=num_of_samples)
@@ -164,7 +169,6 @@ def gen_center_from_err_dist(est_card, raw_card, cur_dim, err_info_dict, num_of_
                     err_sample = pdf_of_err.sample(num_of_samples)
                     # err_sample = [sum(err_info_dict[table_id][0]) / len(err_info_dict[table_id][0])]
 
-                
                 mean = sum(err_sample) / len(err_sample)
                 if naive:
                     center.append(mean)
@@ -172,8 +176,6 @@ def gen_center_from_err_dist(est_card, raw_card, cur_dim, err_info_dict, num_of_
                     if debug: print("Mean Density:", mean[0])
                     center.append(mean[0])
     return center
-
-
 
 
 def modify_query(a, b, query):
@@ -202,10 +204,8 @@ def modify_query(a, b, query):
     }
     table_names = list(CACHE.keys())
     for table_name in table_names:
-        query = query.replace(' ' + table_name + ' AS', ' ' + a+table_name+b + ' AS')
+        query = query.replace(' ' + table_name + ' AS', ' ' + a + table_name + b + ' AS')
     return query
-
-
 
 
 def get_count(cursor_, table_name):
@@ -215,11 +215,10 @@ def get_count(cursor_, table_name):
     return result[0][0]
 
 
-
 def generate_problem(num_vars):
     if num_vars < 1:
         raise ValueError("Number of variables must be greater than or equal to 1.")
-    
+
     names = [f'x{i}' for i in range(0, num_vars)]
     bounds = [[-1, 1] for _ in range(num_vars)]
 
@@ -232,7 +231,7 @@ def generate_problem(num_vars):
     return problem
 
 
-def top_n_of_2d_matrix(matrix, n, base_rel_num = 0):
+def top_n_of_2d_matrix(matrix, n, base_rel_num=0):
     matrix_with_zeros = np.nan_to_num(matrix, nan=0.0)
     # Find the indices of the top n maximum absolute values with zero-based indexing
     abs_matrix = np.abs(matrix_with_zeros)  # Take the absolute values of the matrix
@@ -250,7 +249,7 @@ def top_n_of_2d_matrix(matrix, n, base_rel_num = 0):
     for i in range(n):
         x, y = x_indices[i], y_indices[i]
         value = matrix[x, y]
-        tmp = f"Max absolute value {i+1}: ({base_rel_num + x}, {base_rel_num + y}) - Value: {value}"
+        tmp = f"Max absolute value {i + 1}: ({base_rel_num + x}, {base_rel_num + y}) - Value: {value}"
         print(tmp)
         result += tmp + "\n"
     return result
@@ -270,8 +269,9 @@ def cal_rel_error(true, est):
 ### For a given selectivity sample, calculate the probabitliy of this sample being sampled w.r.t the err distribution
 ### 1. calculate the correspond rel_error
 ### 2. Looking at those sensitive_rels, get the rel_error, calculate p and mutiply them
-def cal_prob_of_sample(samples, sensitive_rels, est_card, raw_card, err_info_dict, is_error_sample=False, print_overhead=False):
-    if is_error_sample: # the input is just a error sample (list of value) 
+def cal_prob_of_sample(samples, sensitive_rels, est_card, raw_card, err_info_dict, is_error_sample=False,
+                       print_overhead=False):
+    if is_error_sample:  # the input is just a error sample (list of value)
         err_sample = samples
         assert len(err_sample) == len(sensitive_rels)
         p = 1
@@ -281,14 +281,13 @@ def cal_prob_of_sample(samples, sensitive_rels, est_card, raw_card, err_info_dic
             p = p * np.exp(pdf_of_err.score_samples(np.array(err_sample)[i].reshape(1, -1)))
         return p[0]
     else:
-        sel_samples = samples ## the input is a list of selectivity samples
+        sel_samples = samples  ## the input is a list of selectivity samples
         # print(sel_samples)
         assert len(list(sel_samples)[0]) == len(est_card), f"{len(list(sel_samples)[0])}, {len(est_card)}"
 
-     
         # Calculate the probability of being sampled by the pdfs
         probability_list = []
-        probability = [] ## a 2d array
+        probability = []  ## a 2d array
         use_per_column_method = True
         if use_per_column_method:
             sel_samples = np.array(list(sel_samples))
@@ -298,17 +297,17 @@ def cal_prob_of_sample(samples, sensitive_rels, est_card, raw_card, err_info_dic
                 #     sel_list_of_this_dim = sel_samples[:, i]
                 # else: # selectivity samples are on all relations
                 sel_list_of_this_dim = sel_samples[:, sen_dim]
-                est_sel_of_this_dim =  est_card[sen_dim]/raw_card[sen_dim]
+                est_sel_of_this_dim = est_card[sen_dim] / raw_card[sen_dim]
                 err_list_of_this_dim = [[cal_rel_error(sel, est_sel_of_this_dim)] for sel in sel_list_of_this_dim]
                 r = find_bin_id_from_err_hist_list(est_card, raw_card, cur_dim=sen_dim, err_info_dict=err_info_dict)
                 pdf_of_err = err_info_dict[sen_dim][2][r]
-                
+
                 p_list_of_this_dim = np.exp(pdf_of_err.score_samples(np.array(err_list_of_this_dim)))
                 ### Try parrallel processing, but the performance seems not good. Maybe the samples size 1000 is small
                 # p_list_of_this_dim = np.exp(parrallel_score_samples(pdf_of_err, np.array(err_list_of_this_dim)))
-                
+
                 probability.append(p_list_of_this_dim)
-            
+
             num_of_sample = len(list(samples))
             probability_list = [np.prod([row[i] for row in probability]) for i in range(num_of_sample)]
 
@@ -316,28 +315,28 @@ def cal_prob_of_sample(samples, sensitive_rels, est_card, raw_card, err_info_dic
         else:
             # Load the pdf for each dim
             pdf_list = []
-            
+
             for i, sen_dim in enumerate(sensitive_rels):
                 r = find_bin_id_from_err_hist_list(est_card, raw_card, cur_dim=sen_dim, err_info_dict=err_info_dict)
                 pdf_of_err = err_info_dict[sen_dim][2][r]
-                pdf_list.append(pdf_of_err)   
+                pdf_list.append(pdf_of_err)
             for sel_sample in sel_samples:
-                
+
                 # Joint porbability
                 p = 1
                 start = time.time()
 
                 for i, sen_dim in enumerate(sensitive_rels):
                     # Transfer to err
-                    err_of_this_dim = cal_rel_error(sel_sample[sen_dim], est_card[sen_dim]/raw_card[sen_dim])
+                    err_of_this_dim = cal_rel_error(sel_sample[sen_dim], est_card[sen_dim] / raw_card[sen_dim])
                     p = p * np.exp(pdf_list[i].score_samples(np.array(err_of_this_dim).reshape(1, -1)))
                 end = time.time()
-                
+
                 probability_list.append(p[0])
             if print_overhead:
-                print(f"-- Overhead of calculate the probability of one sample: {end-start}(s)")         
+                print(f"-- Overhead of calculate the probability of one sample: {end - start}(s)")
             return probability_list
-        
+
 
 def parrallel_score_samples(kde, samples, thread_count=int(0.875 * multiprocessing.cpu_count())):
     with multiprocessing.Pool(thread_count) as p:
@@ -347,7 +346,7 @@ def parrallel_score_samples(kde, samples, thread_count=int(0.875 * multiprocessi
 def calculate_overall(file_path):
     total_sum = 0
     total_a = 0
-    total_b = 0 # postgres
+    total_b = 0  # postgres
     rob_is_better_count = 0
     template_size = 0
     with open(file_path, 'r') as file:
@@ -373,6 +372,7 @@ def calculate_overall(file_path):
     print(f"In {rob_is_better_count} cases, our robust plan is better.")
     return total_sum, template_size
 
+
 # print(calculate_overall('temp-result-1000-all.txt'))
 
 
@@ -383,7 +383,7 @@ def plot_pqo_latency_cdf(file_path, name):
     column2 = []
     for line in data:
         values = line.strip().split(',')
-        column1.append(float(values[0][1:]))  
+        column1.append(float(values[0][1:]))
         column2.append(float(values[1][:-1]))
     column1.sort()
     column2.sort()
@@ -392,7 +392,7 @@ def plot_pqo_latency_cdf(file_path, name):
 
     # Plot the CDFs
     plt.plot(column1, cdf_column1, label='Cached PARQO\'s Plan', linewidth=2, color='blue')
-    plt.plot(column2, cdf_column2, label='PostgreSQL Plan', linewidth=2, color='orange' )
+    plt.plot(column2, cdf_column2, label='PostgreSQL Plan', linewidth=2, color='orange')
     plt.xlabel('Execution Time [in ms]', fontsize=18)
     plt.ylabel('Cumulative Probability', fontsize=18)
     plt.title(f'CDF of Execution Time (Q{name})', fontsize=20)
@@ -401,7 +401,7 @@ def plot_pqo_latency_cdf(file_path, name):
     plt.legend(fontsize=15, loc='lower right')
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig('./latency-cdf/q'+ name + '-latency-cdf.pdf')
+    plt.savefig('./latency-cdf/q' + name + '-latency-cdf.pdf')
     plt.close()
 
 
@@ -409,7 +409,6 @@ def get_pure_q_id(query_id, db_name):
     if db_name == 'stats':
         return query_id
     return query_id.split('-')[0].split('a')[0]
-
 
 
 def get_error_dict_from_txt():
@@ -426,7 +425,8 @@ def get_error_dict_from_txt():
     # }
 
     alias_dict = {}
-    basic_tables = {'u': 'users', 'c': 'comments','b': 'badges','ph': 'postHistory','p': 'posts','pl': 'postLinks','v': 'votes',}
+    basic_tables = {'u': 'users', 'c': 'comments', 'b': 'badges', 'ph': 'postHistory', 'p': 'posts', 'pl': 'postLinks',
+                    'v': 'votes', }
     # Read the content of the first text file
     with open('../imdb/single_tbl_est_record.txt', 'r') as file:
         single = file.read()
@@ -451,8 +451,8 @@ def get_error_dict_from_txt():
         if table_name not in basic_tables:
             print("!!!!!! ", table_name)
             continue
-        result_dict1[int(query_num)] = table_name + '.txt' 
-    
+        result_dict1[int(query_num)] = table_name + '.txt'
+
     matches2_filtered = []
     for match in matches2:
         query_num, left, right = match
@@ -471,18 +471,16 @@ def get_error_dict_from_txt():
             left = alias_dict[left]
         if right in alias_dict.keys():
             right = alias_dict[right]
-            
-        result_dict2[int(query_num)] = left+'_'+right+'.txt' 
-                        
 
-    # Merge the dictionaries
+        result_dict2[int(query_num)] = left + '_' + right + '.txt'
+
+        # Merge the dictionaries
     result_dict = {**result_dict1, **result_dict2}
 
     return result_dict
 
 
 def get_raw_size_from_txt():
-
     # Read the content of the file
     with open('../imdb/single_tbl_est_record.txt', 'r') as file:
         content = file.read()
@@ -493,5 +491,3 @@ def get_raw_size_from_txt():
     raw_rows = [int(float(raw_row)) for raw_row in raw_rows]
 
     return raw_rows
-
-

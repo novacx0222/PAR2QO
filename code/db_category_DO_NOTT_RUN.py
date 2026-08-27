@@ -1,5 +1,5 @@
 import psycopg2
-from postgres import *
+
 from utility import get_count
 
 # TODO: change configuration
@@ -27,14 +27,13 @@ def verify_by_movie_category(i):
     cursor_ = conn.cursor()
     cache = {}
 
-
     new_tables = []
 
     # Loop over the samples and generate the cat tables for all the required tables
     tables_to_sample_by_title = ["movie_companies", "movie_keyword", "cast_info", "movie_link", "movie_info",
                                  "complete_cast", "aka_title", "movie_info_idx"]
 
-    try: # TODO: Only have kind_id 1 - 7
+    try:  # TODO: Only have kind_id 1 - 7
         query = f"""
             CREATE TABLE cat_title_{i} AS
             SELECT *
@@ -63,7 +62,6 @@ def verify_by_movie_category(i):
             cursor_.execute(query_)
             print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
             cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-        
 
         # Generate cat keyword based on movie_keyword
         query_ = f"""
@@ -77,7 +75,7 @@ def verify_by_movie_category(i):
         """
         new_tables.append(f"cat_keyword_{i}")
         cursor_.execute(query_)
-        
+
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
@@ -96,7 +94,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate cat aka_name based on cast_info
         query_ = f"""
             CREATE TABLE cat_aka_name_{i} AS
@@ -111,8 +108,6 @@ def verify_by_movie_category(i):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
-
 
         # Generate cat name based on aka_name
         query_ = f"""
@@ -129,8 +124,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
-
         # Generate cat person_info based on name
         query_ = f"""
             CREATE TABLE cat_person_info_{i} AS
@@ -146,9 +139,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
-
-
         # Generate cat link_type based on movie_link
         query_ = f"""
             CREATE TABLE cat_link_type_{i} AS
@@ -163,9 +153,6 @@ def verify_by_movie_category(i):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
-
-
 
         # Generate cat info_type based on person_info and movie_info
         query_ = f"""
@@ -188,7 +175,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-        
         # Generate company_type
         query_ = f"""
             CREATE TABLE cat_company_type_{i} AS
@@ -203,7 +189,6 @@ def verify_by_movie_category(i):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
 
         # Generate cat_kind_type
         query_ = f"""
@@ -220,7 +205,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate char_name
         query_ = f"""
             CREATE TABLE cat_char_name_{i} AS
@@ -236,7 +220,6 @@ def verify_by_movie_category(i):
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
 
-
         # Generate role_type
         query_ = f"""
             CREATE TABLE cat_role_type_{i} AS
@@ -251,7 +234,6 @@ def verify_by_movie_category(i):
         cursor_.execute(query_)
         print(f"\"{new_tables[-1]}\": {get_count(cursor_, new_tables[-1])},")
         cache[new_tables[-1]] = get_count(cursor_, new_tables[-1])
-
 
         # Generate comp_cast_type
         query_ = f"""
@@ -275,7 +257,6 @@ def verify_by_movie_category(i):
         for t in new_tables:
             query_ = f"ALTER TABLE {t} ADD PRIMARY KEY (id);"
             cursor_.execute(query_)
-
 
         # create index for fk
         index_query = f'''create index company_id_movie_companies on movie_companies(company_id);
@@ -311,29 +292,48 @@ def verify_by_movie_category(i):
 
         # add fk
         fk_query = '''
-                ALTER TABLE title ADD FOREIGN KEY (kind_id) REFERENCES kind_type;
-                ALTER TABLE aka_name ADD FOREIGN KEY (id) REFERENCES name;
-                -- psql:add_fks.sql:3: ERROR:  insert or update on table "cast_info" violates foreign key constraint "cast_info_person_id_fkey"
-                --   DETAIL:  Key (person_id)=(901344) is not present in table "aka_name".
-                -- ALTER TABLE cast_info ADD FOREIGN KEY (person_id) REFERENCES aka_name;
-                ALTER TABLE cast_info ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE cast_info ADD FOREIGN KEY (person_role_id) REFERENCES char_name;
-                ALTER TABLE cast_info ADD FOREIGN KEY (role_id) REFERENCES role_type;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (subject_id) REFERENCES comp_cast_type;
-                ALTER TABLE complete_cast ADD FOREIGN KEY (status_id) REFERENCES comp_cast_type;
-                ALTER TABLE movie_companies ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-                ALTER TABLE movie_info_idx ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_info_idx ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-                ALTER TABLE movie_keyword ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_keyword ADD FOREIGN KEY (keyword_id) REFERENCES keyword;
-                ALTER TABLE movie_link ADD FOREIGN KEY (movie_id) REFERENCES title;
-                ALTER TABLE movie_link ADD FOREIGN KEY (link_type_id) REFERENCES link_type;
-                ALTER TABLE person_info ADD FOREIGN KEY (person_id) REFERENCES name;
-                ALTER TABLE person_info ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
-            '''
+                   ALTER TABLE title
+                       ADD FOREIGN KEY (kind_id) REFERENCES kind_type;
+                   ALTER TABLE aka_name
+                       ADD FOREIGN KEY (id) REFERENCES name;
+                   -- psql:add_fks.sql:3: ERROR:  insert or update on table "cast_info" violates foreign key constraint "cast_info_person_id_fkey"
+                   --   DETAIL:  Key (person_id)=(901344) is not present in table "aka_name".
+                   -- ALTER TABLE cast_info ADD FOREIGN KEY (person_id) REFERENCES aka_name;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (person_role_id) REFERENCES char_name;
+                   ALTER TABLE cast_info
+                       ADD FOREIGN KEY (role_id) REFERENCES role_type;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (subject_id) REFERENCES comp_cast_type;
+                   ALTER TABLE complete_cast
+                       ADD FOREIGN KEY (status_id) REFERENCES comp_cast_type;
+                   ALTER TABLE movie_companies
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
+                   ALTER TABLE movie_info_idx
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_info_idx
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type;
+                   ALTER TABLE movie_keyword
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_keyword
+                       ADD FOREIGN KEY (keyword_id) REFERENCES keyword;
+                   ALTER TABLE movie_link
+                       ADD FOREIGN KEY (movie_id) REFERENCES title;
+                   ALTER TABLE movie_link
+                       ADD FOREIGN KEY (link_type_id) REFERENCES link_type;
+                   ALTER TABLE person_info
+                       ADD FOREIGN KEY (person_id) REFERENCES name;
+                   ALTER TABLE person_info
+                       ADD FOREIGN KEY (info_type_id) REFERENCES info_type; \
+                   '''
         # TODO check if alter successfully
         fk_query = fk_query.replace(' ADD ', f'_{i} ADD ')
         fk_query = fk_query.replace(';', f'_{i};')
@@ -389,7 +389,7 @@ def drop_sampled_tables(i):
     )
     conn.set_session(autocommit=True)
     cursor_ = conn.cursor()
-    
+
     # backup table prefix
     table_prefixes = [
         "cat_title_base",
@@ -446,23 +446,21 @@ drop table cat_role_type_0 CASCADE;
 drop table cat_comp_cast_type_0 CASCADE;
 '''
 
+
 #####################
 # main
 def main():
-    
     # TODO: change range
     for s in [1, 2, 3, 4, 6, 7]:
-    # for s in [1, 4]:
+        # for s in [1, 4]:
         print(s)
         # drop_sampled_tables(s)
 
     for s in [1, 2, 3, 4, 6, 7]:
-    # for s in [1, 4]:
+        # for s in [1, 4]:
         print(s)
         # verify_by_movie_category(s)
 
 
-    
-    
 if __name__ == "__main__":
     main()

@@ -1,10 +1,21 @@
-
 from postgres import *
 from psql_explain_decoder import *
-from prep_error_list import plot_error, cal_rel_error
+
+try:
+    from prep_error_list import plot_error, cal_rel_error
+except ModuleNotFoundError:
+    # prep_error_list.py is absent from the public artifact. Profile generation
+    # only needs this helper; plot_error is needed only by plot_pdf().
+    def cal_rel_error(true, est):
+        return math.log(true / est)
+
+
+    def plot_error(*args, **kwargs):
+        raise RuntimeError("plotting requires prep_error_list.py")
 from querylets import *
 
-from sklearn.neighbors import KernelDensity
+import math
+import os
 import random
 import pandas as pd
 import copy
@@ -17,29 +28,34 @@ import re
 kk = '1=1'
 cache_right = {}
 db = 'imdb'
+
+
 # global num
 # query_id = 7
 # t_id = 1
 
 
-
 # Enumerate all possible local selection conditions (lsc) in the template
 # to generate abs error list in pqo
-def gen_real_error(db: str, # name of databse
-                   query_id: int, 
-                   t_id: int, # id of template for given query_id
-                   num: int, # how many samples used 
-                   left: str, # the name of left table to load predicates in csv, e.g: mc, mi_idx
-                   left_qlet_name: str, # template of left: e.g. mc (mc should have lsc) or mc_full (when mc w/o lsc), see querylet.py 
-                   right: str, # the name of right table to load predicates in csv
-                   right_qlet_name: str, # template of right: similar as left_qlet_name
-                   querylet_name: str, # querylet name, can be found in querylet.py 
-                   SINGLE_TABLE_QUERYLET: bool, # true: 1-table querylet; false: 2-table querylet
-                   workload: str, # the workload name (to identify the data and save_to): 'csv', 'kepler', 'cardinality'
-                   base_path=None,
-                   split=None,
-                   instance=None
-                   ):
+def gen_real_error(
+        db: str,  # name of databse
+        query_id: int,
+        t_id: int,  # id of template for given query_id
+        num: int,  # how many samples used
+        left: str,  # the name of left table to load predicates in csv, e.g: mc, mi_idx
+        left_qlet_name: str,
+        # template of left: e.g. mc (mc should have lsc) or mc_full (when mc w/o lsc), see querylet.py
+        right: str,  # the name of right table to load predicates in csv
+        right_qlet_name: str,  # template of right: similar as left_qlet_name
+        querylet_name: str,  # querylet name, can be found in querylet.py
+        SINGLE_TABLE_QUERYLET: bool,  # true: 1-table querylet; false: 2-table querylet
+        workload: str,
+        # the workload name (to identify the data and save_to): 'csv', 'kepler', 'cardinality'
+        base_path=None,
+        output_path=None,
+        split=None,
+        instance=None
+):
     """
     For example: to generate mc_ct_both-q1-t1-20.txt
     q1: query_id; t1: t_id; 20: num
@@ -111,7 +127,7 @@ def gen_real_error(db: str, # name of databse
     """
     global file_name_to_save_real_error
     if split is not None:
-        split_name_dict = {"category":"cat", "random": "random", "sliding": "sampled"}
+        split_name_dict = {"category": "cat", "random": "random", "sliding": "sampled"}
         instance_name_dict = {"db_instance_1": "1", "db_instance_4": "4"}
     if db == 'imdb':
         if base_path is None:
@@ -126,31 +142,10 @@ def gen_real_error(db: str, # name of databse
         for i in tables:
             condition_dict[i] = []
         # condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [], 'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci':[], 'mi_idx':[], 'kt':[], 'ct':[], 'rt':[], 'cct':[], 'chn':[]}
-    
-    if db == 'dsb':
-        local_selections = pd.read_csv('lsc/dsb/DSB-072.csv')
-        table_names_from_csv = local_selections['Table'].unique()
-
-        condition_dict = {key: [] for key in table_names_from_csv}
-        # condition_dict = {
-        #     "call_center": [], "catalog_returns": [],
-        #     "catalog_sales": [], "customer": [], 
-        #     "customer_address": [], "customer_demographics": [],
-        #     "date_dim": [],
-        #     "household_demographics": [],
-        #     "income_band": [], "item": [],
-        #     "ship_mode": [], "store": [], "store_sales": [],
-        #     "warehouse": [], "web_sales": [], 
-        #     }
-        
-    if db == 'stats': 
-        local_selections = pd.read_csv('lsc/stats/LSC-Stats.csv')
-        condition_dict = {'b': [], 'c': [], 'u': [], 'ph': [], 'p': [], 'pl': [], 'v': []}
 
     local_selections_grouped = local_selections.groupby('Table')
     frequency_dict = copy.deepcopy(condition_dict)
     frequency_dict['x'] = [1]
-    
 
     for table in condition_dict.keys():
         for _, row in local_selections_grouped.get_group(table).iterrows():
@@ -159,309 +154,92 @@ def gen_real_error(db: str, # name of databse
             condition_dict[table].append(row['Condition'])
             frequency_dict[table].append(int(row['Frequency']))
     condition_dict['x'] = ['1=1']
-    
 
-    if db == 'imdb': 
-        frequency_dict['mk'] =[1]
-        condition_dict['mk'] = ['1=1']
-        frequency_dict['akat'] =[1]
-        condition_dict['akat'] = ['1=1']
-        frequency_dict['cc'] =[1]
-        condition_dict['cc'] = ['1=1']
+    assert db == 'imdb'
 
-        if query_id in [11, 21, 27]:
-            frequency_dict['mc'] =[1]
-            condition_dict['mc'] = ['mc.note IS NULL']
+    frequency_dict['mk'] = [1]
+    condition_dict['mk'] = ['1=1']
+    frequency_dict['akat'] = [1]
+    condition_dict['akat'] = ['1=1']
+    frequency_dict['cc'] = [1]
+    condition_dict['cc'] = ['1=1']
 
-        data_list = []
-        print(condition_dict)
-        # input()
-        while True:
-            if len(condition_dict[left]) > 50:
-                left_conditions = random.sample(condition_dict[left], 50)
-            else:
-                left_conditions = condition_dict[left]
-            if len(condition_dict[right]) > 50:
-                right_conditions = random.sample(condition_dict[right], 50)
-            else:
-                right_conditions = condition_dict[right]
+    if query_id in [11, 21, 27]:
+        frequency_dict['mc'] = [1]
+        condition_dict['mc'] = ['mc.note IS NULL']
 
-            combinations = list(itertools.product(enumerate(left_conditions), enumerate(right_conditions)))[:100]
-            random.shuffle(combinations)
+    data_list = []
+    print(condition_dict)
+    # input()
+    while True:
+        if len(condition_dict[left]) > 50:
+            left_conditions = random.sample(condition_dict[left], 50)
+        else:
+            left_conditions = condition_dict[left]
+        if len(condition_dict[right]) > 50:
+            right_conditions = random.sample(condition_dict[right], 50)
+        else:
+            right_conditions = condition_dict[right]
 
-            for (id_1, left_condition), (id_2, right_condition) in combinations:
+        combinations = list(itertools.product(enumerate(left_conditions), enumerate(right_conditions)))[:100]
+        random.shuffle(combinations)
+
+        for (id_1, left_condition), (id_2, right_condition) in combinations:
             # for id_1, left_condition in enumerate(left_conditions):
             #     for id_2, right_condition in enumerate(right_conditions):
-                # right_condition = "k.keyword ='character-name-in-title'"
-                template = querylet(db, left_condition, right_condition, querylet_name)
-                print(left_condition, right_condition, querylet_name)
-                # print(template)
+            # right_condition = "k.keyword ='character-name-in-title'"
+            template = querylet(db, left_condition, right_condition, querylet_name)
+            print(left_condition, right_condition, querylet_name)
+            # print(template)
 
-                if not SINGLE_TABLE_QUERYLET:
-                    left_template = querylet(db, right_condition, left_condition, 'template_'+left_qlet_name)
-                    right_template = querylet(db, left_condition, right_condition, 'template_'+right_qlet_name)
-                    if split is not None:
-                        left_template = querylet(db, right_condition, left_condition, 'template_'+left_qlet_name, split=split_name_dict[split], instance=instance_name_dict[instance])
-                        right_template = querylet(db, left_condition, right_condition, 'template_'+right_qlet_name, split=split_name_dict[split], instance=instance_name_dict[instance])
-                    print(left_template, right_template)
-                    print(template)
-                    data = cal_join_selectivity(template, left_template, right_template, id_2)
-
-                if SINGLE_TABLE_QUERYLET:
-                    template_full = querylet(db, left_condition, right_condition, querylet_name.replace("1","").replace("2","") + '_full')
-                    if split is not None:
-                        template_full = querylet(db, left_condition, right_condition, querylet_name.replace("1","").replace("2","") + '_full', split=split_name_dict[split], instance=instance_name_dict[instance])
-                    print(querylet_name)
-                    print(template_full)
-                    print(template)
-                    data = cal_local_selectivity(template, template_full)
-
-                file_name_to_save_real_error = querylet_name.split('template_')[1]+'-q'+str(query_id)+'-t'+str(t_id)
-
-                # print(template, template_full, file_name_to_save_real_error)
-
-                # print(len(data), len(data_list))
-                if data:
-                    print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-                    print("debug: ", len(data), len(data_list))
-
-            if len(data_list) > 0:
-                break
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
-        print(output)
-        # input()
-        save_to = f'{base_path}{query_id}-{t_id}_{workload}/error_profile/{file_name_to_save_real_error}-{num}.txt'
-        with open(save_to, 'w') as fp:
-            fp.write('\n'.join(output))
-        plot_pdf(query_id, save_to)
-        return
-
-        for right in condition_dict.keys():
-            for left in condition_dict.keys():
-                for l_r_b in ['l', 'r', 'both']:
-                    data_list = []
-                    right = right
-                    querylet_name = f'{left}_{right}_{l_r_b}'
-                    
-                    # fix 'it'
-                    # if left.split('_')[0] == 'it' and left.split('_')[1] == right:
-                    #     querylet_name = f'{left}_{l_r_b}'
-                    # elif right.split('_')[0] == 'it' and right.split('_')[1] == left:
-                    #     querylet_name = f'{right.split('_')[1]}_{right.split('_')[0]}_{l_r_b}'
-                    # else:
-                    #     continue
-
-                    # if querylet_name.split('_')[0] == 'it' or querylet_name.split('_')[1] == 'it':
-                    #     print(querylet_name)
-                    #     input()
-                    # else:
-                    #     continue
-
-                    # don't care those redundent template; only care simplest ones now 
-                    if not check_tempalte(db, 'template_'+querylet_name):
-                        continue
-                    if os.path.exists(f'./data/abs-error-imdb/{querylet_name}.txt'):
-                        print("yes")
-                        continue
-                    else:
-                        print("No", querylet_name)
-                        input()
-                        # continue
-                    for id_1, left_condition in enumerate(condition_dict[left]):
-                        for id_2, right_condition in enumerate(condition_dict[right]):
-
-                            if l_r_b == 'l':
-                                template = querylet(db, right_condition, left_condition, 'template_'+querylet_name)
-                            else:
-                                template = querylet(db, left_condition, right_condition, 'template_'+querylet_name)
-                            
-                            if l_r_b == 'l':
-                                right_qlet_name = right+'_full'
-                                freq_right = 'x'
-                            else:
-                                right_qlet_name = right
-                                freq_right = right
-                            if l_r_b == 'r':
-                                left_qlet_name = left + '_full'
-                                freq_left = 'x'
-                            else:
-                                left_qlet_name = left
-                                freq_left = left
-                            left_template = querylet(db, right_condition, left_condition, 'template_'+left_qlet_name)
-                            right_template = querylet(db, left_condition, right_condition, 'template_'+right_qlet_name)
-                            # template_full = querylet(db, left_condition, right_condition, 'template_'+querylet_name + '_full')
-                            print(template)
-                            # input()
-                            print(left_template)
-                            print(right_template)
-                            
-                            
-                            file_name_to_save_real_error = querylet_name
-                            # data = cal_local_selectivity(template, template_full)
-                            # input() # WARNING
-                            data = cal_join_selectivity(template, left_template, right_template, id_2)
-                            
-                            if data:
-                                print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                                data_list.extend([data]*frequency_dict[freq_right][id_2]*frequency_dict[freq_left][id_1])
-                            if l_r_b == 'l':
-                                break # since we don't need to go through right conditions
-                        if l_r_b == 'r':
-                            break # since we don't need to go through left conditions
-                    output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
-                    # print(output)
-                    input()
-                    with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
-                        fp.write('\n'.join(output))
-                    plot_pdf()
-
-    if db == 'stats':
-
-        data_list = []
-        left = 'x'
-        left_qlet_name = 'b_full'
-        right = 'c'
-        right_qlet_name = 'c_ph_l'
-        querylet_name = f'template_ph_b__c'
-
-        
-
-        for id_1, left_condition in enumerate(condition_dict[left]):
-            for id_2, right_condition in enumerate(condition_dict[right]):
-                template = stats_complex_querylet(cc=right_condition, template=querylet_name)
-                left_template = stats_single_querylet(left_condition, left_qlet_name)
-                right_template = stats_join_querylet(left_alias='c', right_alias='ph', l_r_b='l', 
-                                                     cc=right_condition, kk=left_condition)
-
+            if not SINGLE_TABLE_QUERYLET:
+                left_template = querylet(db, right_condition, left_condition, 'template_' + left_qlet_name)
+                right_template = querylet(db, left_condition, right_condition, 'template_' + right_qlet_name)
+                if split is not None:
+                    left_template = querylet(db, right_condition, left_condition, 'template_' + left_qlet_name,
+                                             split=split_name_dict[split], instance=instance_name_dict[instance])
+                    right_template = querylet(db, left_condition, right_condition, 'template_' + right_qlet_name,
+                                              split=split_name_dict[split], instance=instance_name_dict[instance])
+                print(left_template, right_template)
                 print(template)
-                file_name_to_save_real_error = 'ph_b__c'
-
-                # data = cal_local_selectivity(template, template_full)
-                # input() # WARNING
                 data = cal_join_selectivity(template, left_template, right_template, id_2)
-                
-                if data:
-                    print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
-        # print(output)
-        input()
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
-            fp.write('\n'.join(output))
-        plot_pdf()
-        exit()
-    
-        # for l_id, left in enumerate(['p', 'c', 'ph', 'pl', 'v']):
 
-        #     for r_id, right in enumerate(['p', 'c', 'ph', 'pl', 'v']):
-        # for l_id, left in enumerate(['u', 'c', 'b', 'v']):
+            if SINGLE_TABLE_QUERYLET:
+                template_full = querylet(db, left_condition, right_condition,
+                                         querylet_name.replace("1", "").replace("2", "") + '_full')
+                if split is not None:
+                    template_full = querylet(db, left_condition, right_condition,
+                                             querylet_name.replace("1", "").replace("2", "") + '_full',
+                                             split=split_name_dict[split], instance=instance_name_dict[instance])
+                print(querylet_name)
+                print(template_full)
+                print(template)
+                data = cal_local_selectivity(template, template_full)
 
-        #     for r_id, right in enumerate(['u', 'c', 'b', 'v']):
-        for l_id, left in enumerate(['ph']):
+            file_name_to_save_real_error = querylet_name.split('template_')[1] + '-q' + str(query_id) + '-t' + str(
+                t_id)
 
-            for r_id, right in enumerate(['b']):
-                # if r_id <= l_id: continue
-            
-                for l_r_b in ['both']:
+            # print(template, template_full, file_name_to_save_real_error)
 
-                    data_list = []
+            # print(len(data), len(data_list))
+            if data:
+                print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
+                data_list.extend([data] * frequency_dict[right][id_2] * frequency_dict[left][id_1])
+                print("debug: ", len(data), len(data_list))
 
-                    # right = 'income_band'
-                    querylet_name = f'{left}_{right}_{l_r_b}'
-                    template_id = '_2'
-
-                    for id_1, left_condition in enumerate(random.sample(condition_dict[left], 10)):
-                        for id_2, right_condition in enumerate(random.sample(condition_dict[right], 10)):
-
-                            file_name_to_save_real_error = querylet_name + template_id
-
-                            
-                            template = stats_join_querylet(left, right, l_r_b, left_condition, right_condition)
-                            if l_r_b == 'l':
-                                right_qlet_name = right+'_full'
-                                freq_right = 'x'
-                            else:
-                                right_qlet_name = right
-                                freq_right = right
-                            if l_r_b == 'r':
-                                left_qlet_name = left + '_full'
-                                freq_left = 'x'
-                            else:
-                                left_qlet_name = left
-                                freq_left = left
-                            left_template = stats_single_querylet(left_condition, left_qlet_name)
-                            right_template = stats_single_querylet(right_condition, right_qlet_name)
-                            print(template)
-                            print(left_template)
-                            print(right_template)
-                            
-                            # data = cal_local_selectivity(template, template_full)
-                            # input() # WARNING
-                            data = cal_join_selectivity(template, left_template, right_template, id_2)
-                            
-                            if data:
-                                print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                                data_list.extend([data]*frequency_dict[freq_right][id_2]*frequency_dict[freq_left][id_1])
-                                                        
-                            # input()
-                            if l_r_b == 'l':
-                                break # since we don't need to go through right conditions
-                        if l_r_b == 'r':
-                            break # since we don't need to go through left conditions
-
-                    output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
-                    # print(output)
-                    # input()
-                    with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
-                        fp.write('\n'.join(output))
-                    plot_pdf()
-        
-    if db == 'dsb':
-        data_list = []
-        
-        left = 'x'
-        left_qlet_name = 'warehouse_full'
-        
-        right = 'catalog_sales'
-        right_qlet_name = 'inventory_catalog_sales_r'
-        
-        querylet_name = f'inventory_warehouse__catalog_sales'
-        query_let_type_is_join = True
-        file_name_to_save_real_error = 'inventory_warehouse__catalog_sales_072'
-        for id_1, left_condition in enumerate(condition_dict[left]):
-            for id_2, right_condition in enumerate(condition_dict[right]):
-                
-                # left_condition = left_condition.replace("s2.", "")
-                right_condition = right_condition.replace("d1.", "")
-
-                if query_let_type_is_join:
-                    template = querylet(db, left_condition, right_condition, 'template_'+ querylet_name)
-                    left_template = querylet(db, right_condition, left_condition.replace('d1.', ''), 'template_'+left_qlet_name)
-                    right_template = querylet(db, left_condition, right_condition.replace('d2.', ''), 'template_'+right_qlet_name)
-                
-                    print(template)
-                    
-                    data = cal_join_selectivity(template, left_template, right_template, id_2)
-                else:
-                    template = querylet(db, left_condition, right_condition, 'template_'+ querylet_name)
-                    template_full = querylet(db, left_condition, right_condition, 'template_'+ querylet_name + '_full')
-                    print(template_full)
-                    print(template)
-                    
-                    data = cal_local_selectivity(template, template_full)
-                
-                if data:
-                    print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
-        # print(output)
-        input()
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
-            fp.write('\n'.join(output))
-        plot_pdf()
-        exit()
-
+        if len(data_list) > 0:
+            break
+    output = [str(data[0]) + " " + str(data[1]) for data in data_list]
+    print(output)
+    # input()
+    if output_path is None:
+        output_path = base_path
+    output_dir = f'{output_path}{query_id}-{t_id}_{workload}/error_profile'
+    os.makedirs(output_dir, exist_ok=True)
+    save_to = f'{output_dir}/{file_name_to_save_real_error}-{num}.txt'
+    with open(save_to, 'w') as fp:
+        fp.write('\n'.join(output))
+    # The two-column text file is the error profile; plotting is optional.
 
 
 def cal_join_selectivity(join_template, left_template, right_template, id):
@@ -475,7 +253,7 @@ def cal_join_selectivity(join_template, left_template, right_template, id):
         est_right_count, act_right_count = cache_right[id]
         print("=== Use cached")
     print(f"join rows est: {est_join_count}, act: {act_join_count}")
-    print(f"left rows est: {est_left_count},  act {act_left_count}")
+    print(f"left rows est: {est_left_count}, act: {act_left_count}")
     print(f"right rows est: {est_right_count}, act: {act_right_count}")
     if est_left_count == 0 or act_left_count == 0 or est_right_count == 0 or act_right_count == 0 or act_join_count == 0:
         return False
@@ -490,14 +268,16 @@ def cal_local_selectivity(local_template, full_table_template):
     if act_count_full == 0 or est_count_full == 0:
         return False
     else:
-        return [max(1, act_count)/act_count_full, max(1, est_count)/act_count_full]
+        return [max(1, act_count) / act_count_full, max(1, est_count) / act_count_full]
 
 
 def get_est_act_count(template):
-    if db=='imdb':
-        join_plans = get_real_latency('imdbloadbase', template, times=1, return_json=True, limit_time=False, limit_worker=True, drop_buffer=False)
+    if db == 'imdb':
+        join_plans = get_real_latency('imdbloadbase', template, times=1, return_json=True, limit_time=False,
+                                      limit_worker=True, drop_buffer=False)
     else:
-        join_plans = get_real_latency(db, template, times=1, return_json=True, limit_time=False, limit_worker=True, drop_buffer=False)
+        join_plans = get_real_latency(db, template, times=1, return_json=True, limit_time=False, limit_worker=True,
+                                      drop_buffer=False)
 
     join_plans = join_plans[0][0][0]['Plan']
     node_type = join_plans['Node Type']
@@ -513,14 +293,13 @@ def get_est_act_count(template):
     return est_join_count, act_join_count
 
 
-
-
 def plot_pdf(query_id=1, txt_file=None):
+    from sklearn.neighbors import KernelDensity
     if txt_file:
         with open(txt_file, 'r') as fp:
             lines = fp.readlines()
     else:
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'r') as fp:
+        with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'r') as fp:
             lines = fp.readlines()
     data = [x.strip().split() for x in lines]
     abs_error_list = []
@@ -531,7 +310,7 @@ def plot_pdf(query_id=1, txt_file=None):
         # if float(x[0]) > 1 or float(x[1]) > 1 or float(x[0]) < 0 or float(x[1]) < 0:
         #     continue
         # else:
-        cleaned_data.append([float(x[0])/134170, float(x[1])/134170])
+        cleaned_data.append([float(x[0]) / 134170, float(x[1]) / 134170])
     # Err = true - est
     abs_err = [float(x[0]) - float(x[1]) for x in cleaned_data]
     abs_err = sorted(abs_err)
@@ -545,10 +324,10 @@ def plot_pdf(query_id=1, txt_file=None):
             count_1 += 1
         else:
             count_2 += 1
-    print(count_1/(count_1 + count_2), ": true>est ", count_2/(count_1 + count_2), ": true<est")
+    print(count_1 / (count_1 + count_2), ": true>est ", count_2 / (count_1 + count_2), ": true<est")
     kde = KernelDensity(kernel="gaussian", bandwidth=0.3).fit(abs_err)
     # plot_error(abs_err, kde, name="data/abs-error-dsb/cn-mc_abs")
-    
+
     relative_error_list = []
     for x in data:
         if float(x[0]) == 0 or 0 == float(x[1]):
@@ -560,7 +339,7 @@ def plot_pdf(query_id=1, txt_file=None):
     print(min(relative_error_list), "min rel error")
     kde = KernelDensity(kernel="gaussian", bandwidth=1).fit(relative_error_list)
     plot_error(relative_error_list, kde, rel_error=True, name=txt_file[:-4])
-    
+
 
 def check_tempalte(db, querylet_name):
     if not querylet(db, '', '', querylet_name):
@@ -568,11 +347,12 @@ def check_tempalte(db, querylet_name):
     else:
         return True
 
+
 def modify_table_name(inner_table, q=0, outer_table=None):
     '''Given the exact table name in the query template, provides the table information
         for the querylet.
     '''
-    if outer_table: # join
+    if outer_table:  # join
         # inner_table, outer_table: table name in querylet
         # inner_table_name, outer_table_name: table name in sample.csv
         if inner_table == "it" or inner_table == "it1" or inner_table == "it2":
@@ -582,14 +362,14 @@ def modify_table_name(inner_table, q=0, outer_table=None):
                 inner_table_name = "it_mi"
             if outer_table in ["mi_idx", "miidx"]:
                 inner_table_name = "it_miidx"
-            if outer_table in ["mi_idx1", "mi_idx2"]:   # Q33
+            if outer_table in ["mi_idx1", "mi_idx2"]:  # Q33
                 inner_table_name = inner_table
             inner_table = "it"
         else:
             inner_table_name = inner_table
             if inner_table[-1] in ["1", "2"]:
                 inner_table = inner_table[:-1]
-            if inner_table=="miidx":
+            if inner_table == "miidx":
                 inner_table_name = "mi_idx"
                 inner_table = "mi_idx"
         if outer_table == "it" or outer_table == "it1" or outer_table == "it2":
@@ -599,25 +379,25 @@ def modify_table_name(inner_table, q=0, outer_table=None):
                 outer_table_name = "it_mi"
             if inner_table in ["mi_idx", "miidx"]:
                 outer_table_name = "it_miidx"
-            if inner_table in ["mi_idx1", "mi_idx2"]:   # Q33
+            if inner_table in ["mi_idx1", "mi_idx2"]:  # Q33
                 outer_table_name = inner_table
             outer_table = "it"
         else:
             outer_table_name = outer_table
             if outer_table[-1] in ["1", "2"]:
                 outer_table = outer_table[:-1]
-            if outer_table=="miidx":
+            if outer_table == "miidx":
                 outer_table_name = "mi_idx"
                 outer_table = "mi_idx"
         return inner_table, inner_table_name, outer_table, outer_table_name
-    else:   # single table
+    else:  # single table
         # table: table name in querylet
         # table_name: table name in sample.csv
         table_name = inner_table
         if inner_table == "it" or inner_table == "it1" or inner_table == "it2":
-            if q==7:
+            if q == 7:
                 table_name = "it_pi"
-            if q==13:
+            if q == 13:
                 if inner_table == "it":
                     table_name = "it_miidx"
                 if inner_table == "it2":
@@ -636,16 +416,21 @@ def modify_table_name(inner_table, q=0, outer_table=None):
             table = inner_table
             if table[-1] in ["1", "2"]:
                 table = table[:-1]
-            if inner_table=="miidx":
+            if inner_table == "miidx":
                 table = "mi_idx"
         return table, table_name
 
-def parse_query(sql,q,t,split=None,instance=None):
+
+def parse_query(sql, q, t, split=None, instance=None):
     if split is None:
-        basic=True
+        basic = True
     else:
-        basic=False
-    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="lsh")
+        basic = False
+    conn = psycopg2.connect(
+        host=os.environ.get("PGHOST", "/tmp"),
+        dbname=os.environ.get("PGDATABASE", "imdbloadbase"),
+        user=os.environ.get("PGUSER", "lsh"),
+    )
     conn.set_session(autocommit=True)
     cursor = conn.cursor()
     explain = "EXPLAIN (SUMMARY, COSTS, FORMAT JSON)"
@@ -653,10 +438,11 @@ def parse_query(sql,q,t,split=None,instance=None):
     result_dict = {}
     param_dict = {}
 
-    with open("/nfs/lshh/imdb/single_tbl_est_record.txt", "r") as file:
+    record_dir = os.environ.get("PAR2QO_PG_RECORD_DIR", "/nfs/lshh/imdb")
+    with open(os.path.join(record_dir, "single_tbl_est_record.txt"), "r") as file:
         log_data = file.read()
     single_table_regex = re.compile(
-        r"query: (\d+)\nRELOPTINFO \((\w+)\): rows=\d+ width=\d+\n(?:\s+baserestrictinfo: (.+?)\n)?",re.DOTALL)
+        r"query: (\d+)\nRELOPTINFO \((\w+)\): rows=\d+ width=\d+\n(?:\s+baserestrictinfo: (.+?)\n)?", re.DOTALL)
     for match in single_table_regex.finditer(log_data):
         dim = int(match.group(1))
         table = match.group(2)
@@ -666,22 +452,24 @@ def parse_query(sql,q,t,split=None,instance=None):
 
         # Only add entries with baserestrictinfo
         if baserestrictinfo:
-            params = ["x", "", table_name, "", "template_"+table, True]
-            result_dict[int(dim)] = table+".txt"
+            params = ["x", "", table_name, "", "template_" + table, True]
+            result_dict[int(dim)] = table + ".txt"
             param_dict[int(dim)] = params
 
-    with open("/nfs/lshh/imdb/join_est_record_job.txt", "r") as file:
+    with open(os.path.join(record_dir, "join_est_record_job.txt"), "r") as file:
         log_data = file.read()
     query_regex = re.compile(r"query: (\d+)\n(.+?)(?=query: |\Z)", re.DOTALL)
-    inner_rel_regex = re.compile(r"==================inner_rel======(\d+)============: \nRELOPTINFO \((\w+)\):.+?\n.+?(baserestrictinfo: .+?\n|$)?")
-    outer_rel_regex = re.compile(r"==================outer_rel======(\d+)============: \nRELOPTINFO \((\w+)\):.+?\n.+?(baserestrictinfo: .+?\n|$)?")
+    inner_rel_regex = re.compile(
+        r"==================inner_rel======(\d+)============: \nRELOPTINFO \((\w+)\):.+?\n.+?(baserestrictinfo: .+?\n|$)?")
+    outer_rel_regex = re.compile(
+        r"==================outer_rel======(\d+)============: \nRELOPTINFO \((\w+)\):.+?\n.+?(baserestrictinfo: .+?\n|$)?")
     for match in query_regex.finditer(log_data):
         dim = match.group(1)
         query_text = match.group(2)
-        
+
         inner_match = inner_rel_regex.search(query_text)
         outer_match = outer_rel_regex.search(query_text)
-   
+
         if inner_match and outer_match:
             inner_rel, inner_table, inner_predicate = inner_match.groups()
             outer_rel, outer_table, outer_predicate = outer_match.groups()
@@ -693,26 +481,27 @@ def parse_query(sql,q,t,split=None,instance=None):
             inner_table_name = inner_table
             outer_table_name = outer_table
 
-            inner_table, inner_table_name, outer_table, outer_table_name = modify_table_name(inner_table,outer_table=outer_table)
-                
+            inner_table, inner_table_name, outer_table, outer_table_name = modify_table_name(inner_table,
+                                                                                             outer_table=outer_table)
+
             params = []
             if inner_has_predicate and outer_has_predicate:
                 join_type = "both"
                 params += [inner_table_name, inner_table, outer_table_name, outer_table]
             elif inner_has_predicate:
                 join_type = "l"
-                params += [inner_table_name, inner_table, "x", outer_table+"_full"]
+                params += [inner_table_name, inner_table, "x", outer_table + "_full"]
             elif outer_has_predicate:
                 join_type = "r"
-                params += ["x", inner_table+"_full", outer_table_name, outer_table]
+                params += ["x", inner_table + "_full", outer_table_name, outer_table]
             else:
                 continue
-            
+
             join_key = f"{inner_table}_{outer_table}_{join_type}"
             if join_key in ["n_an_both", "pi_n_both"]: continue
-            params.append("template_"+join_key)
+            params.append("template_" + join_key)
             params.append(False)
-            result_dict[int(dim)] = join_key+".txt"
+            result_dict[int(dim)] = join_key + ".txt"
             param_dict[int(dim)] = params
     if basic:
         err_file = "cached_info/error_profile_dict.json"
@@ -727,13 +516,14 @@ def parse_query(sql,q,t,split=None,instance=None):
     data[key] = result_dict
     with open(err_file, "w") as f:
         json.dump(data, f, indent=4)
-    
+
     with open(param_file, "r") as f:
         data = json.load(f)
     data[key] = param_dict
     with open(param_file, "w") as f:
         json.dump(data, f, indent=4)
     return data
+
 
 params = {}
 params['7a'] = {
@@ -775,7 +565,8 @@ if __name__ == "__main__":
     parser.add_argument('--gen_err_profile', action='store_true', help='generate meta info first')
     parser.add_argument('--gen_meta_info', action='store_true', help='generate error profile')
     parser.add_argument('--manual', action='store_true', help='manually generate error profile')
-    parser.add_argument('--base_path', default=None, type=str, help='base path to raw data folder, inside should be in the form of q-t_workload')
+    parser.add_argument('--base_path', default=None, type=str,
+                        help='base path to raw data folder, inside should be in the form of q-t_workload')
 
     args = parser.parse_args()
     if args.q is None:
@@ -799,7 +590,7 @@ if __name__ == "__main__":
             split = base_path.split("/")[-3]
             instance = base_path.split("/")[-2]
             basic = False
-    #/home/lsh/PARQO_backend/data/imdb-robustness/category/db_instance_1/3-0_csv/error_profile/k-q3-t0-50.txt
+    # /home/lsh/PARQO_backend/data/imdb-robustness/category/db_instance_1/3-0_csv/error_profile/k-q3-t0-50.txt
     log_fname = f"{base_path}{q}-{t}_{workload}/log/error-profile-{q}-{t}.log"
     log_dir = os.path.dirname(log_fname)
     os.makedirs(log_dir, exist_ok=True)
@@ -810,7 +601,7 @@ if __name__ == "__main__":
         with open(path, "r") as f:
             data = json.load(f)
         sql = list(data.values())[0]
-        results = parse_query(sql,q,t,split,instance)
+        results = parse_query(sql, q, t, split, instance)
         logging.info(f"Generating error profile meta info: {time.time() - start}")
     if gen_err_profile:
         start = time.time()
@@ -830,7 +621,7 @@ if __name__ == "__main__":
             print(f'Parameters are {param_data}')
             # Unpack the parameter data into variables
             left, left_qlet_name, right, right_qlet_name, querylet_name, single_table_querylet = param_data
-            
+
             # Call the 'gen_real_error' function with unpacked parameters
             gen_real_error(
                 db='imdb',  # Database name
@@ -859,7 +650,7 @@ if __name__ == "__main__":
             print(f'Parameters are {param_data}')
             # Unpack the parameter data into variables
             left, left_qlet_name, right, right_qlet_name, querylet_name, single_table_querylet = param_data
-            
+
             # Call the 'gen_real_error' function with unpacked parameters
             gen_real_error(
                 db='imdb',  # Database name

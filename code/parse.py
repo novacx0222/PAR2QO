@@ -18,15 +18,13 @@ def parse_string(new_list, d):
             final_list.append(new_list[i])
     return final_list
 
+
 join_type = ['Merge Join', 'Hash Join', 'Nested Loop']
 hint_type_dict = {
-    'Merge Join': 'MergeJoin', 
-    'Hash Join': 'HashJoin', 
+    'Merge Join': 'MergeJoin',
+    'Hash Join': 'HashJoin',
     'Nested Loop': 'NestLoop'
 }
-
-
-
 
 
 def gen_join_hints(str):
@@ -41,7 +39,7 @@ def gen_join_hints(str):
     for i in final_list:
         if i == '':
             final_list.remove('')
-    for i in final_list:    
+    for i in final_list:
         if i == ',':
             final_list.remove(',')
     for i in range(len(final_list)):
@@ -60,13 +58,13 @@ def gen_join_hints(str):
         if final_list[i] == ')' and visited[i] == 0:
             tmp_rst = ')'
             visited[i] == 1
-            for j in range(i-1, -1, -1):
+            for j in range(i - 1, -1, -1):
                 if final_list[j] not in ['(', ')'] and final_list[j] not in join_type:
                     tmp_rst = final_list[j] + ' ' + tmp_rst
                 if final_list[j] == '(' and visited[j] == 0:
-                    tmp_rst = hint_type_dict[final_list[j-1]] + ' ' + final_list[j] + ' ' + tmp_rst
+                    tmp_rst = hint_type_dict[final_list[j - 1]] + ' ' + final_list[j] + ' ' + tmp_rst
                     visited[j] = 1
-                    visited[j-1] = 1
+                    visited[j - 1] = 1
                     break
             join_hints.append(tmp_rst)
             continue
@@ -83,6 +81,7 @@ def gen_scan_hints(scan_mtd):
         scan_hints.append(tmp)
     return scan_hints
 
+
 def gen_final_hint(str, scan_mtd):
     result = '/*+'
     for i in gen_scan_hints(scan_mtd):
@@ -93,9 +92,3 @@ def gen_final_hint(str, scan_mtd):
     result += '\n' + leading
     result += ' */'
     return result
-
-
-
-
-
-

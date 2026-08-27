@@ -1,18 +1,16 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def JS_distance(p, q):
     # Compute the mixture distribution M
     m = 0.5 * (np.array(p) + np.array(q))
-    
+
     js_div = 0.5 * kl_divergence(p, m) + 0.5 * kl_divergence(q, m)
     return np.sqrt(js_div)
 
 
-
 def kl_divergence(p, q):
-
     p = np.array(p)
     q = np.array(q)
 
@@ -27,8 +25,8 @@ def kl_divergence(p, q):
     return np.sum(p * np.log(p / q))
 
 
-
 import numpy as np
+
 
 def k_center_greedy(plan_cost_list, k, distance_func, first_plan=None, seed=42):
     """
@@ -50,7 +48,7 @@ def k_center_greedy(plan_cost_list, k, distance_func, first_plan=None, seed=42):
         centers = list(range(0, len(plan_cost_list)))
         assignments = {center: [center] for center in centers}
         return centers, assignments
-    
+
     # Initialize: Select a random first center
     if first_plan is None:
         centers = [np.random.choice(n, 1)[0]]
@@ -79,14 +77,10 @@ def k_center_greedy(plan_cost_list, k, distance_func, first_plan=None, seed=42):
     return centers, assignments
 
 
-
-
-
 def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=None, file_name="aaa.pdf"):
-    
     default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     n_colors = len(default_colors)
-    
+
     def get_color(plan_id):
         try:
             pid_int = int(plan_id)
@@ -94,9 +88,9 @@ def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=No
         except ValueError:
             color_idx = hash(plan_id) % n_colors
         return default_colors[color_idx]
-    
+
     fig, ax1 = plt.subplots(figsize=(10, 10))
-    
+
     if labels is None:
         for i, cost_list in enumerate(all_cost_list):
             if sort:
@@ -104,7 +98,7 @@ def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=No
             plan_id = i
             ax1.plot(
                 cost_list,
-                label=str(plan_id),  
+                label=str(plan_id),
                 linestyle='-',
                 marker='o',
                 markersize=5,
@@ -116,7 +110,7 @@ def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=No
         for i, cost_list in enumerate(all_cost_list):
             if sort:
                 cost_list = sorted(cost_list)
-            
+
             plan_id = labels[i]
             if anchor is not None and plan_id == anchor:
                 anchor_cost_list = cost_list
@@ -133,15 +127,15 @@ def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=No
                     color='lightgrey'
                 )
         ax1.plot(
-                    anchor_cost_list,
-                    label=str(plan_id),
-                    linestyle='-',
-                    marker='o',
-                    markersize=4,
-                    linewidth=1,
-                    # color='cornflowerblue'
-                    color = '#1f77b4'
-                )
+            anchor_cost_list,
+            label=str(plan_id),
+            linestyle='-',
+            marker='o',
+            markersize=4,
+            linewidth=1,
+            # color='cornflowerblue'
+            color='#1f77b4'
+        )
     ax1.set_ylabel("Log-based Plan Cost", fontsize=30)
     ax1.set_ylim((1000, 1000000000))
     ax1.tick_params(axis='y', labelsize=30)
@@ -174,7 +168,6 @@ def plot_all_cost_distribution(all_cost_list, sort=False, labels=None, anchor=No
     plt.close()
 
 
-
 def plot_2d_matrix(matrix, id_list=None, filename='plan_cost_KL_matrix.pdf'):
     matrix = np.array(matrix)
     plt.figure(figsize=(8, 6))
@@ -183,14 +176,14 @@ def plot_2d_matrix(matrix, id_list=None, filename='plan_cost_KL_matrix.pdf'):
     plt.title('Relative KL of each pair of plan -- Visualization')
     plt.xlabel('Plan ID')
     plt.ylabel('Plan ID')
-    
+
     if id_list is not None:  # Check if id_list is provided
         plt.xticks(ticks=np.arange(matrix.shape[1]), labels=id_list)
         plt.yticks(ticks=np.arange(matrix.shape[0]), labels=id_list)
     else:
         plt.xticks(ticks=np.arange(matrix.shape[1]), labels=np.arange(matrix.shape[1]))
         plt.yticks(ticks=np.arange(matrix.shape[0]), labels=np.arange(matrix.shape[0]))
-    
+
     # Save the figure as a PDF
     plt.savefig(filename, format='pdf')
     plt.close()

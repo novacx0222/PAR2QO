@@ -1,26 +1,29 @@
+import copy
+import pandas as pd
+import random
+from prep_error_list import plot_error, cal_rel_error
+from sklearn.neighbors import KernelDensity
 
 from postgres import *
 from psql_explain_decoder import *
-from sklearn.neighbors import KernelDensity
-import random
-import pandas as pd
-from prep_error_list import plot_error, cal_rel_error
 from querylets import *
-import copy
 
 file_name_to_save_real_error = ''
 kk = '1=1'
 cache_right = {}
 db = 'imdb'
 
+
 def gen_real_error():
-    global file_name_to_save_real_error            
+    global file_name_to_save_real_error
 
     if db == 'imdb':
         local_selections = pd.read_csv('lsc/job/LSC-JOB.csv')
         # ['Table', 'Condition', 'Frequency']
-        condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [], 'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci':[], 'mi_idx':[], 'kt':[], 'ct':[], 'rt':[], 'cct':[], 'chn':[]}
-    
+        condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [],
+                          'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci': [], 'mi_idx': [], 'kt': [], 'ct': [],
+                          'rt': [], 'cct': [], 'chn': []}
+
     if db == 'dsb':
         local_selections = pd.read_csv('lsc/dsb/DSB-072.csv')
         table_names_from_csv = local_selections['Table'].unique()
@@ -36,15 +39,14 @@ def gen_real_error():
         #     "ship_mode": [], "store": [], "store_sales": [],
         #     "warehouse": [], "web_sales": [], 
         #     }
-        
-    if db == 'stats': 
+
+    if db == 'stats':
         local_selections = pd.read_csv('lsc/stats/LSC-Stats.csv')
         condition_dict = {'b': [], 'c': [], 'u': [], 'ph': [], 'p': [], 'pl': [], 'v': []}
 
     local_selections_grouped = local_selections.groupby('Table')
     frequency_dict = copy.deepcopy(condition_dict)
     frequency_dict['x'] = [2]
-    
 
     for table in condition_dict.keys():
         for _, row in local_selections_grouped.get_group(table).iterrows():
@@ -53,16 +55,15 @@ def gen_real_error():
             condition_dict[table].append(row['Condition'])
             frequency_dict[table].append(int(row['Frequency']))
     condition_dict['x'] = ['1=1']
-    
 
-    if db == 'imdb': 
-        frequency_dict['mk'] =[1]
+    if db == 'imdb':
+        frequency_dict['mk'] = [1]
         condition_dict['mk'] = ['1=1']
-        frequency_dict['akat'] =[1]
+        frequency_dict['akat'] = [1]
         condition_dict['akat'] = ['1=1']
-        frequency_dict['cc'] =[1]
+        frequency_dict['cc'] = [1]
         condition_dict['cc'] = ['1=1']
-        
+
         data_list = []
         left = 'x'
         left_single = 'ci_full'
@@ -70,14 +71,12 @@ def gen_real_error():
         right_single = 'mk_k_r'
         template_name = f'template_mk_ci__k'
 
-        
-
         for id_1, left_condition in enumerate(condition_dict[left]):
             for id_2, right_condition in enumerate(condition_dict[right]):
                 right_condition = "k.keyword ='character-name-in-title'"
                 template = querylet(db, left_condition, right_condition, template_name)
-                left_template = querylet(db, right_condition, left_condition, 'template_'+left_single)
-                right_template = querylet(db, left_condition, right_condition, 'template_'+right_single)
+                left_template = querylet(db, right_condition, left_condition, 'template_' + left_single)
+                right_template = querylet(db, left_condition, right_condition, 'template_' + right_single)
                 # template_full = querylet(db, left_condition, right_condition, 'template_'+template_name + '_full')
                 print(template)
                 file_name_to_save_real_error = template_name.split('template_')[1]
@@ -85,14 +84,14 @@ def gen_real_error():
                 # data = cal_local_selectivity(template, template_full)
                 # input() # WARNING
                 data = cal_join_selectivity(template, left_template, right_template, id_2)
-                
+
                 if data:
                     print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
+                    data_list.extend([data] * frequency_dict[right][id_2] * frequency_dict[left][id_1])
+        output = [str(data[0]) + " " + str(data[1]) for data in data_list]
         # print(output)
         input()
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
+        with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'w') as fp:
             fp.write('\n'.join(output))
         plot_pdf()
         exit()
@@ -103,7 +102,7 @@ def gen_real_error():
                     data_list = []
                     right = right
                     template_name = f'{left}_{right}_{l_r_b}'
-                    
+
                     # fix 'it'
                     # if left.split('_')[0] == 'it' and left.split('_')[1] == right:
                     #     template_name = f'{left}_{l_r_b}'
@@ -119,7 +118,7 @@ def gen_real_error():
                     #     continue
 
                     # don't care those redundent template; only care simplest ones now 
-                    if not check_tempalte(db, 'template_'+template_name):
+                    if not check_tempalte(db, 'template_' + template_name):
                         continue
                     if os.path.exists(f'./data/abs-error-imdb/{template_name}.txt'):
                         print("yes")
@@ -132,12 +131,12 @@ def gen_real_error():
                         for id_2, right_condition in enumerate(condition_dict[right]):
 
                             if l_r_b == 'l':
-                                template = querylet(db, right_condition, left_condition, 'template_'+template_name)
+                                template = querylet(db, right_condition, left_condition, 'template_' + template_name)
                             else:
-                                template = querylet(db, left_condition, right_condition, 'template_'+template_name)
-                            
+                                template = querylet(db, left_condition, right_condition, 'template_' + template_name)
+
                             if l_r_b == 'l':
-                                right_single = right+'_full'
+                                right_single = right + '_full'
                                 freq_right = 'x'
                             else:
                                 right_single = right
@@ -148,31 +147,31 @@ def gen_real_error():
                             else:
                                 left_single = left
                                 freq_left = left
-                            left_template = querylet(db, right_condition, left_condition, 'template_'+left_single)
-                            right_template = querylet(db, left_condition, right_condition, 'template_'+right_single)
+                            left_template = querylet(db, right_condition, left_condition, 'template_' + left_single)
+                            right_template = querylet(db, left_condition, right_condition, 'template_' + right_single)
                             # template_full = querylet(db, left_condition, right_condition, 'template_'+template_name + '_full')
                             print(template)
                             # input()
                             print(left_template)
                             print(right_template)
-                            
-                            
+
                             file_name_to_save_real_error = template_name
                             # data = cal_local_selectivity(template, template_full)
                             # input() # WARNING
                             data = cal_join_selectivity(template, left_template, right_template, id_2)
-                            
+
                             if data:
                                 print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                                data_list.extend([data]*frequency_dict[freq_right][id_2]*frequency_dict[freq_left][id_1])
+                                data_list.extend(
+                                    [data] * frequency_dict[freq_right][id_2] * frequency_dict[freq_left][id_1])
                             if l_r_b == 'l':
-                                break # since we don't need to go through right conditions
+                                break  # since we don't need to go through right conditions
                         if l_r_b == 'r':
-                            break # since we don't need to go through left conditions
-                    output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
+                            break  # since we don't need to go through left conditions
+                    output = [str(data[0]) + " " + str(data[1]) for data in data_list]
                     # print(output)
                     input()
-                    with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
+                    with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'w') as fp:
                         fp.write('\n'.join(output))
                     plot_pdf()
 
@@ -185,13 +184,11 @@ def gen_real_error():
         right_single = 'c_ph_l'
         template_name = f'template_ph_b__c'
 
-        
-
         for id_1, left_condition in enumerate(condition_dict[left]):
             for id_2, right_condition in enumerate(condition_dict[right]):
                 template = stats_complex_querylet(cc=right_condition, template=template_name)
                 left_template = stats_single_querylet(left_condition, left_single)
-                right_template = stats_join_querylet(left_alias='c', right_alias='ph', l_r_b='l', 
+                right_template = stats_join_querylet(left_alias='c', right_alias='ph', l_r_b='l',
                                                      cc=right_condition, kk=left_condition)
 
                 print(template)
@@ -200,18 +197,18 @@ def gen_real_error():
                 # data = cal_local_selectivity(template, template_full)
                 # input() # WARNING
                 data = cal_join_selectivity(template, left_template, right_template, id_2)
-                
+
                 if data:
                     print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
+                    data_list.extend([data] * frequency_dict[right][id_2] * frequency_dict[left][id_1])
+        output = [str(data[0]) + " " + str(data[1]) for data in data_list]
         # print(output)
         input()
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
+        with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'w') as fp:
             fp.write('\n'.join(output))
         plot_pdf()
         exit()
-    
+
         # for l_id, left in enumerate(['p', 'c', 'ph', 'pl', 'v']):
 
         #     for r_id, right in enumerate(['p', 'c', 'ph', 'pl', 'v']):
@@ -222,7 +219,7 @@ def gen_real_error():
 
             for r_id, right in enumerate(['b']):
                 # if r_id <= l_id: continue
-            
+
                 for l_r_b in ['both']:
 
                     data_list = []
@@ -236,10 +233,9 @@ def gen_real_error():
 
                             file_name_to_save_real_error = template_name + template_id
 
-                            
                             template = stats_join_querylet(left, right, l_r_b, left_condition, right_condition)
                             if l_r_b == 'l':
-                                right_single = right+'_full'
+                                right_single = right + '_full'
                                 freq_right = 'x'
                             else:
                                 right_single = right
@@ -255,73 +251,75 @@ def gen_real_error():
                             print(template)
                             print(left_template)
                             print(right_template)
-                            
+
                             # data = cal_local_selectivity(template, template_full)
                             # input() # WARNING
                             data = cal_join_selectivity(template, left_template, right_template, id_2)
-                            
+
                             if data:
                                 print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                                data_list.extend([data]*frequency_dict[freq_right][id_2]*frequency_dict[freq_left][id_1])
-                                                        
+                                data_list.extend(
+                                    [data] * frequency_dict[freq_right][id_2] * frequency_dict[freq_left][id_1])
+
                             # input()
                             if l_r_b == 'l':
-                                break # since we don't need to go through right conditions
+                                break  # since we don't need to go through right conditions
                         if l_r_b == 'r':
-                            break # since we don't need to go through left conditions
+                            break  # since we don't need to go through left conditions
 
-                    output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
+                    output = [str(data[0]) + " " + str(data[1]) for data in data_list]
                     # print(output)
                     # input()
-                    with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
+                    with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'w') as fp:
                         fp.write('\n'.join(output))
                     plot_pdf()
-        
+
     if db == 'dsb':
         data_list = []
-        
+
         left = 'x'
         left_single = 'warehouse_full'
-        
+
         right = 'catalog_sales'
         right_single = 'inventory_catalog_sales_r'
-        
+
         template_name = f'inventory_warehouse__catalog_sales'
         query_let_type_is_join = True
         file_name_to_save_real_error = 'inventory_warehouse__catalog_sales_072'
         for id_1, left_condition in enumerate(condition_dict[left]):
             for id_2, right_condition in enumerate(condition_dict[right]):
-                
+
                 # left_condition = left_condition.replace("s2.", "")
                 right_condition = right_condition.replace("d1.", "")
 
                 if query_let_type_is_join:
-                    template = querylet(db, left_condition, right_condition, 'template_'+ template_name)
-                    left_template = querylet(db, right_condition, left_condition.replace('d1.', ''), 'template_'+left_single)
-                    right_template = querylet(db, left_condition, right_condition.replace('d2.', ''), 'template_'+right_single)
-                
+                    template = querylet(db, left_condition, right_condition, 'template_' + template_name)
+                    left_template = querylet(db, right_condition, left_condition.replace('d1.', ''),
+                                             'template_' + left_single)
+                    right_template = querylet(db, left_condition, right_condition.replace('d2.', ''),
+                                              'template_' + right_single)
+
                     print(template)
-                    
+
                     data = cal_join_selectivity(template, left_template, right_template, id_2)
                 else:
-                    template = querylet(db, left_condition, right_condition, 'template_'+ template_name)
-                    template_full = querylet(db, left_condition, right_condition, 'template_'+ template_name + '_full')
+                    template = querylet(db, left_condition, right_condition, 'template_' + template_name)
+                    template_full = querylet(db, left_condition, right_condition, 'template_' + template_name + '_full')
                     print(template_full)
                     print(template)
-                    
+
                     data = cal_local_selectivity(template, template_full)
-                
+
                 if data:
                     print(data, cal_rel_error(data[0], data[1]), math.log(data[1] / data[0]))
-                    data_list.extend([data]*frequency_dict[right][id_2]*frequency_dict[left][id_1])
-        output = [str(data[0]) +" "+ str(data[1]) for data in data_list]
+                    data_list.extend([data] * frequency_dict[right][id_2] * frequency_dict[left][id_1])
+        output = [str(data[0]) + " " + str(data[1]) for data in data_list]
         # print(output)
         input()
-        with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'w') as fp:
+        with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'w') as fp:
             fp.write('\n'.join(output))
         plot_pdf()
         exit()
-
 
 
 def cal_join_selectivity(join_template, left_template, right_template, id):
@@ -350,14 +348,16 @@ def cal_local_selectivity(local_template, full_table_template):
     if act_count_full == 0 or est_count_full == 0:
         return False
     else:
-        return [max(1, act_count)/act_count_full, max(1, est_count)/act_count_full]
+        return [max(1, act_count) / act_count_full, max(1, est_count) / act_count_full]
 
 
 def get_est_act_count(template):
-    if db=='imdb':
-        join_plans = get_real_latency('imdbloadbase', template, times=1, return_json=True, limit_time=False, limit_worker=True, drop_buffer=False)
+    if db == 'imdb':
+        join_plans = get_real_latency('imdbloadbase', template, times=1, return_json=True, limit_time=False,
+                                      limit_worker=True, drop_buffer=False)
     else:
-        join_plans = get_real_latency(db, template, times=1, return_json=True, limit_time=False, limit_worker=True, drop_buffer=False)
+        join_plans = get_real_latency(db, template, times=1, return_json=True, limit_time=False, limit_worker=True,
+                                      drop_buffer=False)
 
     join_plans = join_plans[0][0][0]['Plan']
     node_type = join_plans['Node Type']
@@ -373,11 +373,9 @@ def get_est_act_count(template):
     return est_join_count, act_join_count
 
 
-
-
 def plot_pdf():
     print(file_name_to_save_real_error)
-    with open('./data/abs-error-'+db+'/' + file_name_to_save_real_error + '.txt', 'r') as fp:
+    with open('./data/abs-error-' + db + '/' + file_name_to_save_real_error + '.txt', 'r') as fp:
         lines = fp.readlines()
     data = [x.strip().split() for x in lines]
     abs_error_list = []
@@ -388,7 +386,7 @@ def plot_pdf():
         # if float(x[0]) > 1 or float(x[1]) > 1 or float(x[0]) < 0 or float(x[1]) < 0:
         #     continue
         # else:
-        cleaned_data.append([float(x[0])/134170, float(x[1])/134170])
+        cleaned_data.append([float(x[0]) / 134170, float(x[1]) / 134170])
     # Err = true - est
     abs_err = [float(x[0]) - float(x[1]) for x in cleaned_data]
     abs_err = sorted(abs_err)
@@ -402,10 +400,10 @@ def plot_pdf():
             count_1 += 1
         else:
             count_2 += 1
-    print(count_1/(count_1 + count_2), ": true>est ", count_2/(count_1 + count_2), ": true<est")
+    print(count_1 / (count_1 + count_2), ": true>est ", count_2 / (count_1 + count_2), ": true<est")
     kde = KernelDensity(kernel="gaussian", bandwidth=0.3).fit(abs_err)
     # plot_error(abs_err, kde, name="data/abs-error-dsb/cn-mc_abs")
-    
+
     relative_error_list = []
     for x in data:
         if float(x[0]) == 0 or 0 == float(x[1]):
@@ -416,8 +414,9 @@ def plot_pdf():
     print(max(relative_error_list), "max rel error")
     print(min(relative_error_list), "min rel error")
     kde = KernelDensity(kernel="gaussian", bandwidth=1).fit(relative_error_list)
-    plot_error(relative_error_list, kde, rel_error=True, name='data/abs-error-'+db+'/'+file_name_to_save_real_error)
-    
+    plot_error(relative_error_list, kde, rel_error=True,
+               name='data/abs-error-' + db + '/' + file_name_to_save_real_error)
+
 
 def check_tempalte(db, template_name):
     if not querylet(db, '', '', template_name):

@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 CSV_DIR = 'datasets/job'
 

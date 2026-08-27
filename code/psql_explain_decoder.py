@@ -1,5 +1,7 @@
 import json
+
 from utility import *
+
 '''
 Decode the pg_explain result (json format) into readable format
 
@@ -14,10 +16,11 @@ Merge Join(Merge Join(Merge Join(Merge Join(Nested Loop(yuxi,mc),Nested Loop(yux
 '''
 
 join_type_to_cond_field = {
-    'Merge Join' : 'Merge Cond',
-    'Hash Join' : 'Hash Cond',
-    'Nested Loop' : 'Join Filter'
+    'Merge Join': 'Merge Cond',
+    'Hash Join': 'Hash Cond',
+    'Nested Loop': 'Join Filter'
 }
+
 
 def load(filename):
     with open(filename) as fin:
@@ -28,17 +31,17 @@ def load(filename):
 def decode(plans, parent, file_name=None):
     if len(plans) < 1 or len(plans) > 2:
         raise ValueError('incorrect number of plans')
-        
+
     join_order = ''
     single_scans = []
     join_conds = []
-    
+
     if len(plans) == 2:
         if plans[0]['Parent Relationship'] == 'Inner' and plans[1]['Parent Relationship'] == 'Outer':
             plans[0], plans[1] = plans[1], plans[0]
         if plans[0]['Parent Relationship'] != 'Outer' or plans[1]['Parent Relationship'] != 'Inner':
             raise ValueError('missing inner/outer relationship')
-            
+
     for i in range(len(plans)):
         node_type = plans[i]['Node Type']
         if 'Plans' not in plans[i]:
@@ -55,8 +58,10 @@ def decode(plans, parent, file_name=None):
             join_order += 'yuxi'
         elif node_type in ['Merge Join', 'Hash Join', 'Nested Loop']:
             if file_name:
-                est_sel = card(plans[i]["Plan Rows"]) / (card(plans[i]["Plans"][0]["Plan Rows"]) * card(plans[i]["Plans"][1]["Plan Rows"]))
-                true_sel = card(plans[i]["Actual Rows"]) / (card(plans[i]["Plans"][0]["Actual Rows"]) * card(plans[i]["Plans"][1]["Actual Rows"]))
+                est_sel = card(plans[i]["Plan Rows"]) / (
+                        card(plans[i]["Plans"][0]["Plan Rows"]) * card(plans[i]["Plans"][1]["Plan Rows"]))
+                true_sel = card(plans[i]["Actual Rows"]) / (
+                        card(plans[i]["Plans"][0]["Actual Rows"]) * card(plans[i]["Plans"][1]["Actual Rows"]))
                 print(f"{est_sel}, {true_sel}", file=file_name)
             join_order += node_type + '('
             _join_order, _join_conds, _single_scans = decode(plans[i]['Plans'], node_type, file_name)
@@ -74,17 +79,17 @@ def decode(plans, parent, file_name=None):
             print(plans[i])
             print(node_type)
             raise NotImplementedError(node_type)
-        
+
         if i < len(plans) - 1:
             join_order += ','
     return join_order, join_conds, single_scans
-          
+
+
 # plan = load('query_plan_1.json')
 # join_order, join_conds, single_scans = decode(plan['Plans'], plan['Node Type'])
 # print(join_order)
 # print(join_conds)
 # print(single_scans)
-
 
 
 def start_with_tab(str, x):
@@ -100,11 +105,10 @@ def start_with_tab(str, x):
 JOIN_KEYWORD = ["MergeJoin", "HashJoin", "NestLoop"]
 SCAN_KEYWORD = ["SeqScan", "IdxScan", "BitmapScan"]
 
-
 join_kw_to_we_need = {
-    'MergeJoin' : 'Merge Join',
-    'HashJoin' : 'Hash Join',
-    'NestLoop' : 'Nested Loop'
+    'MergeJoin': 'Merge Join',
+    'HashJoin': 'Hash Join',
+    'NestLoop': 'Nested Loop'
 }
 
 scan_kw_to_we_need = {
@@ -122,7 +126,7 @@ def pre_deal_gather(input_string):
             count = lines[i].count("\t")
             # print(count)
             # input()
-            for j in range(i+1, len(lines)):
+            for j in range(i + 1, len(lines)):
                 new_count = lines[j].count("\t")
                 if new_count <= count and not "pathkeys:" in lines[j]:
                     break
@@ -151,7 +155,6 @@ def pre_build_plan_tree(input_string):
     return "\n".join(return_lines)
 
 
-
 def seperate_top_n_plans(preprocessed_string):
     preprocessed_string = preprocessed_string.split('\n')
 
@@ -165,12 +168,11 @@ def seperate_top_n_plans(preprocessed_string):
 
     for i in range(len(pointers)):
         if i + 1 < len(pointers):
-            plan_list.append("\n".join(preprocessed_string[pointers[i]: pointers[i+1]]))
+            plan_list.append("\n".join(preprocessed_string[pointers[i]: pointers[i + 1]]))
         else:
             plan_list.append("\n".join(preprocessed_string[pointers[i]:]))
 
     return plan_list
-
 
 
 ### MergeJoin(MergeJoin(HashJoin(v, p), b), MergeJoin(c, u))
@@ -182,22 +184,21 @@ def build_plan_tree(input_string, x):
     operator_args = lines[0].strip().split('(')[1].split(')')[0].split()
     # print(operator_args)
     operator_name = lines[0].strip().split('(')[0]
-    
+
     if len(operator_args) == 1:
         return operator_args[0]
-
 
     left_start = False
     right_start = False
     left_lines = []
     right_lines = []
     for i in range(1, len(lines)):
-        if start_with_tab(lines[i], x+1) and not left_start:
+        if start_with_tab(lines[i], x + 1) and not left_start:
             left_start = True
             right_start = False
             left_lines.append(lines[i])
             continue
-        if start_with_tab(lines[i], x+1) and left_start:
+        if start_with_tab(lines[i], x + 1) and left_start:
             left_start = False
             right_start = True
             right_lines.append(lines[i])
@@ -209,8 +210,8 @@ def build_plan_tree(input_string, x):
             right_lines.append(lines[i])
             continue
 
-    left_result = build_plan_tree("\n".join(left_lines), x+1)
-    right_result = build_plan_tree("\n".join(right_lines), x+1)
+    left_result = build_plan_tree("\n".join(left_lines), x + 1)
+    right_result = build_plan_tree("\n".join(right_lines), x + 1)
 
     return join_kw_to_we_need[operator_name] + "(" + left_result + "," + right_result + ")"
 
@@ -226,7 +227,6 @@ def build_scan_methods(input_string):
                 result.append(scan_kw_to_we_need[operator_name] + "(" + operator_args[0] + ")")
                 break
     return result
-
 
 # # Read the input from "/winhomes/hx68/imdbtmp_plan.txt"
 # with open("/winhomes/hx68/imdb/record.txt") as f:
@@ -247,7 +247,7 @@ def build_scan_methods(input_string):
 #     scan_methods = build_scan_methods(plan_lists[i])
 #     print(scan_methods)
 #     scan_method_set_set.add(" ".join(sorted(scan_methods)))
-    
+
 #     serialized_plan = build_plan_tree(plan_lists[i], 1)
 #     print(serialized_plan)
 #     serialized_plan_set.add(serialized_plan)
