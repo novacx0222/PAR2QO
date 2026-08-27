@@ -51,6 +51,7 @@
     },
     "2-0": {
         "0": "cn.txt",
+        "1": "k.txt",
         "5": "mc_cn_r.txt",
         "6": "mk_k_r.txt"
     },
@@ -64,6 +65,8 @@
         "7": "t_mk_l.txt"
     },
     "1-0": {
+        "0": "ct.txt",
+        "1": "it.txt",
         "2": "mc.txt",
         "5": "mc_ct_both.txt",
         "6": "mi_idx_it_r.txt",
@@ -107,7 +110,7 @@
         "14": "t_cc_l.txt",
         "15": "ci_chn_r.txt",
         "16": "mk_ci__chn.txt",
-        "17": "n_ci__chn.txt", 
+        "17": "n_ci__chn.txt",
         "18": "t_ci_l.txt",
         "19": "mk_k_r.txt",
         "20": "t_kt_both.txt",
@@ -165,15 +168,21 @@
     "10-0": {
         "1": "ci.txt",
         "2": "cn.txt",
+        "5": "rt.txt",
+        "6": "t.txt",
         "7": "ci_chn_l.txt",
         "8": "mc_ci_r.txt",
+        "9": "rt_ci_both.txt",
         "10": "t_ci_both.txt",
         "11": "mc_cn_r.txt",
         "13": "t_mc_l.txt"
     },
     "11-0": {
         "0": "cn.txt",
+        "1": "ct.txt",
+        "2": "k.txt",
         "3": "lt.txt",
+        "4": "mc.txt",
         "7": "t.txt",
         "8": "mc_cn_both.txt",
         "9": "mc_ct_both.txt",

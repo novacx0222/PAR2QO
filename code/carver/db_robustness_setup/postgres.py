@@ -17,6 +17,7 @@ def DropBufferCache(cursor_):
 
 def get_real_latency(db_name, sql, hint=None, times=5, inject=False, output_plan=False, query_id=None, return_json=False, limit_time=10000, limit_worker=False, drop_buffer=True):
     # TODO inject or not is meaning less
+    global query_plan
     conn = psycopg2.connect(host="/tmp", dbname=db_name, user="lsh")
     conn.set_session(autocommit=True)
     cursor_ = conn.cursor()
@@ -79,6 +80,7 @@ def get_real_latency(db_name, sql, hint=None, times=5, inject=False, output_plan
 
 
 def get_plan_cost_simple(cursor, sql, hint=None, debug=None, explain=None):
+    global to_execute_, cost, join_order, scan_mtd
     cursor.execute('DISCARD ALL;')
     cursor.execute('SET enable_material = off')
     # cursor.execute('SET top_n = 0')
@@ -150,6 +152,7 @@ def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
 
 
 def get_all_predicates(cursor, sql, explain):
+    global to_execute_
     cursor.execute('DISCARD ALL;')
     cursor.execute('SET enable_material = off')
     # cursor.execute('SET top_n = 0')

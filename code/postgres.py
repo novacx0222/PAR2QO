@@ -19,6 +19,7 @@ def DropBufferCache(cursor_):
 def get_real_latency(db_name, sql, hint=None, times=5, inject=False, output_plan=False, query_id=None,
                      return_json=False, limit_time=10000, limit_worker=False, drop_buffer=True):
     # TODO inject or not is meaning less
+    global query_plan
     conn = psycopg2.connect(
         host=os.environ.get("PGHOST", "/tmp"),
         dbname=os.environ.get("PGDATABASE", db_name),
@@ -84,6 +85,7 @@ def get_real_latency(db_name, sql, hint=None, times=5, inject=False, output_plan
 
 
 def get_plan_cost_simple(cursor, sql, hint=None, debug=None, explain=None):
+    global to_execute_, cost, join_order, scan_mtd
     cursor.execute('DISCARD ALL;')
     cursor.execute('SET enable_material = off')
     # cursor.execute('SET top_n = 0')
@@ -111,11 +113,12 @@ def get_plan_cost_simple(cursor, sql, hint=None, debug=None, explain=None):
 
 
 def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
-    os.system("cp ./cardinality/join.txt ../imdb/")
-    os.system("cp ./cardinality/new_single.txt ../imdb/")
-    os.system("cp ./cardinality/pointers.txt ../imdb")
-    cursor.execute('DISCARD ALL;')
-    cursor.execute('SET enable_material = off')
+    global cost, to_execute_, query_plan, join_order, scan_mtd
+    os.system("cp ./cardinality/join.txt /winhomes/hx68/imdbloadbase")
+    os.system("cp ./cardinality/new_single.txt /winhomes/hx68/imdbloadbase")
+    os.system("cp ./cardinality/pointers.txt /winhomes/hx68/imdbloadbase")
+    cursor.execute("DISCARD ALL;")
+    cursor.execute("SET enable_material=off;")
     # cursor.execute('SET top_n = 0')
     cursor.execute("SET ml_cardest_enabled=true;")
     cursor.execute("SET query_no=0;")
@@ -126,8 +129,8 @@ def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
     cursor.execute("SET join_est_no=0;")
     cursor.execute("SET ml_joinest_fname='join.txt';")
 
-    os.system("rm ../imdb/join_est_record_job.txt")
-    os.system("rm ../imdb/single_tbl_est_record.txt")
+    os.system("rm /winhomes/hx68/imdbloadbase/join_est_record_job.txt")
+    os.system("rm /winhomes/hx68/imdbloadbase/single_tbl_est_record.txt")
     cursor.execute("SET print_single_tbl_queries=true;")
     cursor.execute("SET print_sub_queries=true;")
 
@@ -153,6 +156,7 @@ def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
 
 
 def get_all_predicates(cursor, sql, explain):
+    global to_execute_
     cursor.execute('DISCARD ALL;')
     cursor.execute('SET enable_material = off')
     # cursor.execute('SET top_n = 0')

@@ -400,7 +400,7 @@ def parse_query(sql, q, t, split=None, instance=None):
     result_dict = {}
     param_dict = {}
 
-    record_dir = os.environ.get("PAR2QO_PG_RECORD_DIR", "/nfs/lshh/imdb")
+    record_dir = os.environ.get("PAR2QO_PG_RECORD_DIR", "/winhomes/hx68/imdbloadbase")
     with open(os.path.join(record_dir, "single_tbl_est_record.txt"), "r") as file:
         log_data = file.read()
     single_table_regex = re.compile(
