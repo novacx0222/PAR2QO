@@ -102,19 +102,22 @@
         "9": "t_mk_l.txt"
     },
     "20-0": {
+        "1": "cct1.txt",
         "2": "cct2.txt",
         "3": "chn.txt",
         "5": "k.txt",
+        "6": "kt.txt",
+        "9": "t.txt",
         "10": "cct1_cc_l.txt",
         "11": "cct2_cc_l.txt",
         "14": "t_cc_l.txt",
         "15": "ci_chn_r.txt",
-        "16": "mk_ci__chn.txt",
-        "17": "n_ci__chn.txt",
         "18": "t_ci_l.txt",
         "19": "mk_k_r.txt",
         "20": "t_kt_both.txt",
-        "21": "t_mk_l.txt"
+        "21": "t_mk_l.txt",
+        "16": "mk_ci__chn.txt",
+        "17": "n_ci__chn.txt"
     },
     "21-0": {
         "0": "cn.txt",

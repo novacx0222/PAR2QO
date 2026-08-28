@@ -126,23 +126,20 @@ def gen_real_error(
     SINGLE_TABLE_QUERYLET = False
     """
     # global old_real_error_filename
-    global real_error_filename
-    if split is not None:
-        split_name_dict = {"category": "cat", "random": "random", "sliding": "sampled"}
-        instance_name_dict = {"db_instance_1": "1", "db_instance_4": "4"}
-    if db == 'imdb':
-        if base_path is None:
-            base_path = "./data/imdb-new/"
-        path = f'{base_path}{query_id}-{t_id}_{workload}/sample-{num}.csv'
-        print(path)
-        local_selections = pd.read_csv(path, encoding='ISO-8859-1')
-        # ['Table', 'Condition', 'Frequency']
+    global real_error_filename, local_selections, condition_dict, split_name_dict, instance_name_dict, data
 
-        tables = local_selections['Table'].dropna().unique()
-        condition_dict = {}
-        for i in tables:
-            condition_dict[i] = []
-        # condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [], 'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci':[], 'mi_idx':[], 'kt':[], 'ct':[], 'rt':[], 'cct':[], 'chn':[]}
+    if base_path is None:
+        base_path = "./data/imdb-new/"
+    path = f'{base_path}{query_id}-{t_id}_{workload}/sample-{num}.csv'
+    print(path)
+    local_selections = pd.read_csv(path, encoding='ISO-8859-1')
+    # ['Table', 'Condition', 'Frequency']
+
+    tables = local_selections['Table'].dropna().unique()
+    condition_dict = {}
+    for i in tables:
+        condition_dict[i] = []
+    # condition_dict = {'k': [], 't': [], 'cn': [], 'n': [], 'mc': [], 'mi': [], 'it_pi': [], 'it_mi': [], 'it_miidx': [], 'an': [], 'lt': [], 'pi': [], 'ci':[], 'mi_idx':[], 'kt':[], 'ct':[], 'rt':[], 'cct':[], 'chn':[]}
 
     local_selections_grouped = local_selections.groupby('Table')
     frequency_dict = copy.deepcopy(condition_dict)
@@ -173,6 +170,10 @@ def gen_real_error(
     print(condition_dict)
     # input()
     while True:
+        # if left not in condition_dict or right not in condition_dict:
+        #     print(f"left not in condition_dict: {left not in condition_dict}; "
+        #           f"right not in condition_dict: {right not in condition_dict}")
+        #     return
         if len(condition_dict[left]) > 50:
             left_conditions = random.sample(condition_dict[left], 50)
         else:
@@ -206,11 +207,17 @@ def gen_real_error(
                 data = cal_join_selectivity(template, left_template, right_template, id_2)
 
             if SINGLE_TABLE_QUERYLET:
+                if querylet_name in {"template_cct1", "template_cct2"}:
+                    full_querylet_name = querylet_name + "_full"
+                else:
+                    full_querylet_name = (
+                        querylet_name.replace("1", "").replace("2", "") + "_full"
+                    )
                 template_full = querylet(db, left_condition, right_condition,
-                                         querylet_name.replace("1", "").replace("2", "") + '_full')
+                                         full_querylet_name)
                 if split is not None:
                     template_full = querylet(db, left_condition, right_condition,
-                                             querylet_name.replace("1", "").replace("2", "") + '_full',
+                                             full_querylet_name,
                                              split=split_name_dict[split], instance=instance_name_dict[instance])
                 print(querylet_name)
                 print(template_full)
@@ -237,7 +244,8 @@ def gen_real_error(
         output_path = base_path
     output_dir = f'{output_path}{query_id}-{t_id}_{workload}/error_profile'
     os.makedirs(output_dir, exist_ok=True)
-    save_to = f'{output_dir}/{real_error_filename}__test.txt'
+    # Changed the filename, removing the `__test` postfix
+    save_to = f'{output_dir}/{real_error_filename}.txt'
     with open(save_to, 'w') as fp:
         fp.write('\n'.join(output))
     # The two-column text file is the error profile; plotting is optional.
@@ -329,7 +337,7 @@ def modify_table_name(inner_table, q=0, outer_table=None):
             inner_table = "it"
         else:
             inner_table_name = inner_table
-            if inner_table[-1] in ["1", "2"]:
+            if inner_table not in {"cct1", "cct2"} and inner_table[-1] in ["1", "2"]:
                 inner_table = inner_table[:-1]
             if inner_table == "miidx":
                 inner_table_name = "mi_idx"
@@ -346,7 +354,7 @@ def modify_table_name(inner_table, q=0, outer_table=None):
             outer_table = "it"
         else:
             outer_table_name = outer_table
-            if outer_table[-1] in ["1", "2"]:
+            if outer_table not in {"cct1", "cct2"} and outer_table[-1] in ["1", "2"]:
                 outer_table = outer_table[:-1]
             if outer_table == "miidx":
                 outer_table_name = "mi_idx"
@@ -376,11 +384,22 @@ def modify_table_name(inner_table, q=0, outer_table=None):
             table = "it"
         else:
             table = inner_table
-            if table[-1] in ["1", "2"]:
+            if table not in {"cct1", "cct2"} and table[-1] in ["1", "2"]:
                 table = table[:-1]
             if inner_table == "miidx":
                 table = "mi_idx"
         return table, table_name
+
+
+def _read_record_delta(path, previous_size):
+    """Read only records appended by the current metadata EXPLAIN."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"PostgreSQL did not produce metadata record file: {path}")
+    current_size = os.path.getsize(path)
+    offset = previous_size if current_size >= previous_size else 0
+    with open(path, "r") as file:
+        file.seek(offset)
+        return file.read()
 
 
 def parse_query(sql, q, t, split=None, instance=None):
@@ -395,14 +414,26 @@ def parse_query(sql, q, t, split=None, instance=None):
     )
     conn.set_session(autocommit=True)
     cursor = conn.cursor()
+    record_dir = os.environ.get("PAR2QO_PG_RECORD_DIR", "/winhomes/hx68/imdbloadbase")
+    single_record_path = os.path.join(record_dir, "single_tbl_est_record.txt")
+    join_record_path = os.path.join(record_dir, "join_est_record_job.txt")
+    single_record_size = (
+        os.path.getsize(single_record_path) if os.path.exists(single_record_path) else 0
+    )
+    join_record_size = (
+        os.path.getsize(join_record_path) if os.path.exists(join_record_path) else 0
+    )
+
     explain = "EXPLAIN (SUMMARY, COSTS, FORMAT JSON)"
     _ = get_plan_cost(cursor=cursor, sql=sql, explain=explain)
     result_dict = {}
     param_dict = {}
 
-    record_dir = os.environ.get("PAR2QO_PG_RECORD_DIR", "/winhomes/hx68/imdbloadbase")
-    with open(os.path.join(record_dir, "single_tbl_est_record.txt"), "r") as file:
-        log_data = file.read()
+    log_data = _read_record_delta(single_record_path, single_record_size)
+    if not log_data.strip():
+        raise RuntimeError(
+            f"No new single-table metadata was appended to {single_record_path}"
+        )
     single_table_regex = re.compile(
         r"query: (\d+)\nRELOPTINFO \((\w+)\): rows=\d+ width=\d+\n(?:\s+baserestrictinfo: (.+?)\n)?", re.DOTALL)
     for match in single_table_regex.finditer(log_data):
@@ -418,8 +449,9 @@ def parse_query(sql, q, t, split=None, instance=None):
             result_dict[int(dim)] = table + ".txt"
             param_dict[int(dim)] = params
 
-    with open(os.path.join(record_dir, "join_est_record_job.txt"), "r") as file:
-        log_data = file.read()
+    log_data = _read_record_delta(join_record_path, join_record_size)
+    if not log_data.strip():
+        raise RuntimeError(f"No new join metadata was appended to {join_record_path}")
     query_regex = re.compile(r"query: (\d+)\n(.+?)(?=query: |\Z)", re.DOTALL)
     inner_rel_regex = re.compile(
         r"==================inner_rel======(\d+)============: \nRELOPTINFO \((\w+)\):.+?\n.+?(baserestrictinfo: .+?\n|$)?")
@@ -443,8 +475,9 @@ def parse_query(sql, q, t, split=None, instance=None):
             inner_table_name = inner_table
             outer_table_name = outer_table
 
-            inner_table, inner_table_name, outer_table, outer_table_name = modify_table_name(inner_table,
-                                                                                             outer_table=outer_table)
+            inner_table, inner_table_name, outer_table, outer_table_name = modify_table_name(
+                inner_table, q=q, outer_table=outer_table
+            )
 
             params = []
             if inner_has_predicate and outer_has_predicate:
@@ -531,27 +564,23 @@ if __name__ == "__main__":
                         help='base path to raw data folder, inside should be in the form of q-t_workload')
 
     args = parser.parse_args()
-    if args.q is None:
-        t = 1
-        q = 7
-        num = 50
-        workload = 'csv'
+
+    q = args.q
+    t = args.t
+    num = args.n
+    workload = args.workload
+    gen_err_profile = args.gen_err_profile
+    gen_meta_info = args.gen_meta_info
+    manual = args.manual
+    base_path = args.base_path
+    basic, split, instance = True, None, None
+    if base_path is None:
+        base_path = "/home/lsh/PARQO_backend/data/imdb-new/"
     else:
-        q = args.q
-        t = args.t
-        num = args.n
-        workload = args.workload
-        gen_err_profile = args.gen_err_profile
-        gen_meta_info = args.gen_meta_info
-        manual = args.manual
-        base_path = args.base_path
-        basic, split, instance = True, None, None
-        if base_path is None:
-            base_path = "/home/lsh/PARQO_backend/data/imdb-new/"
-        else:
-            split = base_path.split("/")[-3]
-            instance = base_path.split("/")[-2]
-            basic = False
+        split = base_path.split("/")[-3]
+        instance = base_path.split("/")[-2]
+        basic = False
+
     # /home/lsh/PARQO_backend/data/imdb-robustness/category/db_instance_1/3-0_csv/error_profile/k-q3-t0-50.txt
     log_fname = f"{base_path}{q}-{t}_{workload}/log/error-profile-{q}-{t}.log"
     log_dir = os.path.dirname(log_fname)
@@ -584,23 +613,27 @@ if __name__ == "__main__":
             # Unpack the parameter data into variables
             left, left_qlet_name, right, right_qlet_name, querylet_name, single_table_querylet = param_data
 
-            # Call the 'gen_real_error' function with unpacked parameters
-            gen_real_error(
-                db='imdb',  # Database name
-                query_id=q,  # Query ID
-                t_id=t,  # Template ID
-                num=num,  # Number parameter
-                left=left,  # Left parameter from 'params'
-                left_qlet_name=left_qlet_name,  # Left Qlet name from 'params'
-                right=right,  # Right parameter from 'params'
-                right_qlet_name=right_qlet_name,  # Right Qlet name from 'params'
-                querylet_name=querylet_name,  # Querylet name from 'params'
-                SINGLE_TABLE_QUERYLET=single_table_querylet,  # Boolean value from 'params'
-                workload=workload,
-                base_path=base_path,
-                split=split,
-                instance=instance
-            )
+            try:
+                # Call the 'gen_real_error' function with unpacked parameters
+                gen_real_error(
+                    db='imdb',  # Database name
+                    query_id=q,  # Query ID
+                    t_id=t,  # Template ID
+                    num=num,  # Number parameter
+                    left=left,  # Left parameter from 'params'
+                    left_qlet_name=left_qlet_name,  # Left Qlet name from 'params'
+                    right=right,  # Right parameter from 'params'
+                    right_qlet_name=right_qlet_name,  # Right Qlet name from 'params'
+                    querylet_name=querylet_name,  # Querylet name from 'params'
+                    SINGLE_TABLE_QUERYLET=single_table_querylet,  # Boolean value from 'params'
+                    workload=workload,
+                    base_path=base_path,
+                    split=split,
+                    instance=instance
+                )
+            except Exception as e:
+                print(e)
+
         logging.info(f"Generating error profile at {path} for sample-{num}.csv: {time.time() - start}")
     if manual:
         with open("cached_info/gen_real_error_params_manual.json", "r") as f:
@@ -613,17 +646,20 @@ if __name__ == "__main__":
             # Unpack the parameter data into variables
             left, left_qlet_name, right, right_qlet_name, querylet_name, single_table_querylet = param_data
 
-            # Call the 'gen_real_error' function with unpacked parameters
-            gen_real_error(
-                db='imdb',  # Database name
-                query_id=q,  # Query ID
-                t_id=t,  # Template ID
-                num=num,  # Number parameter
-                left=left,  # Left parameter from 'params'
-                left_qlet_name=left_qlet_name,  # Left Qlet name from 'params'
-                right=right,  # Right parameter from 'params'
-                right_qlet_name=right_qlet_name,  # Right Qlet name from 'params'
-                querylet_name=querylet_name,  # Querylet name from 'params'
-                SINGLE_TABLE_QUERYLET=single_table_querylet,  # Boolean value from 'params'
-                workload=workload
-            )
+            try:
+                # Call the 'gen_real_error' function with unpacked parameters
+                gen_real_error(
+                    db='imdb',  # Database name
+                    query_id=q,  # Query ID
+                    t_id=t,  # Template ID
+                    num=num,  # Number parameter
+                    left=left,  # Left parameter from 'params'
+                    left_qlet_name=left_qlet_name,  # Left Qlet name from 'params'
+                    right=right,  # Right parameter from 'params'
+                    right_qlet_name=right_qlet_name,  # Right Qlet name from 'params'
+                    querylet_name=querylet_name,  # Querylet name from 'params'
+                    SINGLE_TABLE_QUERYLET=single_table_querylet,  # Boolean value from 'params'
+                    workload=workload
+                )
+            except Exception as e:
+                print(e)

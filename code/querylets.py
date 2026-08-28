@@ -550,8 +550,8 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         ''',
         # cct cc -- Q20 left join on subject_id
         'template_cct1_cc_l': f'''
-            select * from complete_cast AS cc,comp_cast_type AS cct
-            where {cc} AND cct.id = cc.subject_id;
+            select * from complete_cast AS cc,comp_cast_type AS cct1
+            where {cc} AND cct1.id = cc.subject_id;
         ''',
         # cct cc -- Q20 left join on status_id
         'template_cct_cc_2_l': f'''
@@ -560,8 +560,8 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         ''',
         # cct cc -- Q20 left join on status_id
         'template_cct2_cc_l': f'''
-            select * from complete_cast AS cc,comp_cast_type AS cct
-            where {cc} AND cct.id = cc.status_id;
+            select * from complete_cast AS cc,comp_cast_type AS cct2
+            where {cc} AND cct2.id = cc.status_id;
         ''',
         # cct cc -- Q23 left join on status_id # mark
         'template_cct_cc_l': f'''
@@ -799,8 +799,8 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_ct': f'''select * from company_type AS ct where {cc}''',
         'template_ci': f'''select * from cast_info AS ci where {cc};''',
         'template_cct': f'''select * from comp_cast_type AS cct where {cc};''',
-        'template_cct1': f'''select * from comp_cast_type AS cct where {cc};''',
-        'template_cct2': f'''select * from comp_cast_type AS cct where {cc};''',
+        'template_cct1': f'''select * from comp_cast_type AS cct1 where {cc};''',
+        'template_cct2': f'''select * from comp_cast_type AS cct2 where {cc};''',
         'template_chn': f'''select * from char_name AS chn where {cc};''',
         'template_rt': f'''select * from role_type as rt where {cc};''',
         'template_k': f'''select * from keyword as k where {cc};''',
@@ -819,6 +819,8 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_rt_full': f'''select * from role_type AS rt;''',
         'template_ci_full': f'''select * from cast_info AS ci;''',
         'template_cct_full': f'''select * from comp_cast_type AS cct;''',
+        'template_cct1_full': f'''select * from comp_cast_type AS cct1;''',
+        'template_cct2_full': f'''select * from comp_cast_type AS cct2;''',
         'template_chn_full': f'''select * from char_name AS chn;''',
         'template_rt_full': f'''select * from role_type as rt;''',
         'template_k_full': f'''select * from keyword as k;''',
@@ -980,6 +982,8 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
         'template_rt_full': f'''select * from {split}_role_type_{instance} AS rt;''',
         'template_ci_full': f'''select * from {split}_cast_info_{instance} AS ci;''',
         'template_cct_full': f'''select * from {split}_comp_cast_type_{instance} AS cct;''',
+        'template_cct1_full': f'''select * from {split}_comp_cast_type_{instance} AS cct1;''',
+        'template_cct2_full': f'''select * from {split}_comp_cast_type_{instance} AS cct2;''',
         'template_chn_full': f'''select * from {split}_char_name_{instance} AS chn;''',
         'template_rt_full': f'''select * from {split}_role_type_{instance} as rt;''',
         'template_k_full': f'''select * from {split}_keyword_{instance} as k;''',
@@ -1126,12 +1130,12 @@ def querylet(db, kk, cc, template_name, split=None, instance=None):
             where {cc} and mk.movie_id = mc.movie_id;
         ''',
         'template_cct1_cc_l': f'''
-            select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct
-            where {cc} AND cct.id = cc.subject_id;
+            select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct1
+            where {cc} AND cct1.id = cc.subject_id;
         ''',
         'template_cct2_cc_l': f'''
-            select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct
-            where {cc} AND cct.id = cc.status_id;
+            select * from {split}_complete_cast_{instance} AS cc,{split}_comp_cast_type_{instance} AS cct2
+            where {cc} AND cct2.id = cc.status_id;
         ''',
     }
     if db == 'imdb':

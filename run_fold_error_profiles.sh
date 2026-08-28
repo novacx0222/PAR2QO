@@ -5,11 +5,14 @@ set -Eeuo pipefail
 #
 # Typical usage:
 #   ./run_fold_error_profiles.sh samples
+#   ./run_fold_error_profiles.sh metadata
 #   ./run_fold_error_profiles.sh profiles
 #   ./run_fold_error_profiles.sh sanity
 #
 # Useful overrides:
 #   FOLDS="1" ./run_fold_error_profiles.sh samples
+#   FOLDS="1" WORKLOAD="1-0_cardinality" ./run_fold_error_profiles.sh metadata
+#   REFRESH_METADATA=1 FOLDS="1" WORKLOAD="1-0_cardinality" ./run_fold_error_profiles.sh metadata
 #   FOLDS="1" WORKLOAD="17-0_cardinality" ./run_fold_error_profiles.sh profiles
 #   PGUSER=postgres PGDATABASE=imdbloadbase ./run_fold_error_profiles.sh profiles
 
@@ -43,8 +46,33 @@ check_profiles() {
     check-profiles "${COMMON_ARGS[@]}" --include "${WORKLOAD}"
 }
 
+metadata_root() {
+  echo "${OUTPUT_PREFIX}-${FOLD_ARRAY[0]}"
+}
+
+check_metadata() {
+  QUERY_ROOT="$(metadata_root)" \
+  OUTPUT_ROOT="$(metadata_root)" \
+  SAMPLE_SIZE="${SAMPLE_SIZE}" \
+  PYTHON_BIN="${PYTHON_BIN}" \
+  WORKLOAD="${WORKLOAD}" \
+    "${REPO_ROOT}/run_error_profiles.sh" check-metadata
+}
+
+run_metadata() {
+  check_samples
+  echo "Building shared querylet metadata from fold ${FOLD_ARRAY[0]}"
+  QUERY_ROOT="$(metadata_root)" \
+  OUTPUT_ROOT="$(metadata_root)" \
+  SAMPLE_SIZE="${SAMPLE_SIZE}" \
+  PYTHON_BIN="${PYTHON_BIN}" \
+  WORKLOAD="${WORKLOAD}" \
+    "${REPO_ROOT}/run_error_profiles.sh" metadata
+}
+
 run_profiles() {
   check_samples
+  check_metadata
   for fold_id in "${FOLD_ARRAY[@]}"; do
     fold_root="${OUTPUT_PREFIX}-${fold_id}"
     echo "Building error profiles for fold ${fold_id}: ${fold_root}"
@@ -53,6 +81,7 @@ run_profiles() {
       OUTPUT_ROOT="${fold_root}" \
       SAMPLE_SIZE="${SAMPLE_SIZE}" \
       PYTHON_BIN="${PYTHON_BIN}" \
+      REQUIRE_METADATA=1 \
         "${REPO_ROOT}/run_error_profiles.sh" full
     else
       QUERY_ROOT="${fold_root}" \
@@ -60,6 +89,7 @@ run_profiles() {
       SAMPLE_SIZE="${SAMPLE_SIZE}" \
       PYTHON_BIN="${PYTHON_BIN}" \
       WORKLOAD="${WORKLOAD}" \
+      REQUIRE_METADATA=1 \
         "${REPO_ROOT}/run_error_profiles.sh" smoke
     fi
   done
@@ -74,6 +104,12 @@ case "${COMMAND}" in
   check-samples)
     check_samples
     ;;
+  metadata)
+    run_metadata
+    ;;
+  check-metadata)
+    check_metadata
+    ;;
   profiles)
     run_profiles
     ;;
@@ -82,7 +118,14 @@ case "${COMMAND}" in
     ;;
   sanity)
     check_samples
+    check_metadata
     check_profiles
+    ;;
+  all)
+    "${PYTHON_BIN}" "${REPO_ROOT}/code/fold_error_profile_inputs.py" \
+      samples "${COMMON_ARGS[@]}"
+    run_metadata
+    run_profiles
     ;;
   dry-run-profiles)
     check_samples
@@ -99,7 +142,7 @@ case "${COMMAND}" in
     sed -n '3,13p' "$0"
     ;;
   *)
-    echo "Usage: $0 {samples|check-samples|profiles|check-profiles|sanity|dry-run-profiles}" >&2
+    echo "Usage: $0 {samples|check-samples|metadata|check-metadata|profiles|check-profiles|sanity|all|dry-run-profiles}" >&2
     exit 2
     ;;
 esac
