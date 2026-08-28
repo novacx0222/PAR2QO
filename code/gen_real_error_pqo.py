@@ -281,7 +281,7 @@ def cal_local_selectivity(local_template, full_table_template):
 
 
 def imdb_get_est_act_count(sql_string: str):
-    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="hx68")
+    conn = psycopg2.connect(host="/tmp", dbname="imdbloadbase", user="novacx0222")
     conn.set_session(autocommit=True)
     cursor = conn.cursor()
 
@@ -323,41 +323,50 @@ def modify_table_name(inner_table, q=0, outer_table=None):
         for the querylet.
     """
     if outer_table:  # join
+        raw_inner_table = inner_table
+        raw_outer_table = outer_table
+        q33_mi_idx_aliases = {"mi_idx1", "mi_idx2", "miidx1", "miidx2"}
         # inner_table, outer_table: table name in querylet
         # inner_table_name, outer_table_name: table name in sample.csv
         if inner_table == "it" or inner_table == "it1" or inner_table == "it2":
-            if outer_table == "pi":
+            if q == 33 and raw_outer_table in q33_mi_idx_aliases:
+                inner_table_name = raw_inner_table
+            elif outer_table == "pi":
                 inner_table_name = "it_pi"
-            if outer_table == "mi":
+            elif outer_table == "mi":
                 inner_table_name = "it_mi"
-            if outer_table in ["mi_idx", "miidx"]:
+            elif outer_table in ["mi_idx", "miidx"]:
                 inner_table_name = "it_miidx"
-            if outer_table in ["mi_idx1", "mi_idx2"]:  # Q33
-                inner_table_name = inner_table
             inner_table = "it"
         else:
             inner_table_name = inner_table
             if inner_table not in {"cct1", "cct2"} and inner_table[-1] in ["1", "2"]:
                 inner_table = inner_table[:-1]
             if inner_table == "miidx":
-                inner_table_name = "mi_idx"
+                if q == 33 and raw_inner_table in {"miidx1", "miidx2"}:
+                    inner_table_name = raw_inner_table.replace("miidx", "mi_idx")
+                else:
+                    inner_table_name = "mi_idx"
                 inner_table = "mi_idx"
         if outer_table == "it" or outer_table == "it1" or outer_table == "it2":
-            if inner_table == "pi":
+            if q == 33 and raw_inner_table in q33_mi_idx_aliases:
+                outer_table_name = raw_outer_table
+            elif inner_table == "pi":
                 outer_table_name = "it_pi"
-            if inner_table == "mi":
+            elif inner_table == "mi":
                 outer_table_name = "it_mi"
-            if inner_table in ["mi_idx", "miidx"]:
+            elif inner_table in ["mi_idx", "miidx"]:
                 outer_table_name = "it_miidx"
-            if inner_table in ["mi_idx1", "mi_idx2"]:  # Q33
-                outer_table_name = inner_table
             outer_table = "it"
         else:
             outer_table_name = outer_table
             if outer_table not in {"cct1", "cct2"} and outer_table[-1] in ["1", "2"]:
                 outer_table = outer_table[:-1]
             if outer_table == "miidx":
-                outer_table_name = "mi_idx"
+                if q == 33 and raw_outer_table in {"miidx1", "miidx2"}:
+                    outer_table_name = raw_outer_table.replace("miidx", "mi_idx")
+                else:
+                    outer_table_name = "mi_idx"
                 outer_table = "mi_idx"
         return inner_table, inner_table_name, outer_table, outer_table_name
     else:  # single table
