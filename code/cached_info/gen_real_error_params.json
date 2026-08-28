@@ -562,5 +562,2621 @@
             "template_n_ci__chn",
             false
         ]
+    },
+    "13-0": {
+        "0": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "ct",
+            "",
+            "template_ct",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "9": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "10": [
+            "x",
+            "mc_full",
+            "ct",
+            "ct",
+            "template_mc_ct_r",
+            false
+        ],
+        "11": [
+            "x",
+            "mi_idx_full",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_r",
+            false
+        ],
+        "12": [
+            "x",
+            "mi_full",
+            "it_mi",
+            "it",
+            "template_mi_it_r",
+            false
+        ],
+        "13": [
+            "x",
+            "t_full",
+            "kt",
+            "kt",
+            "template_t_kt_r",
+            false
+        ]
+    },
+    "14-0": {
+        "0": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "mi_idx",
+            "",
+            "template_mi_idx",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "8": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "9": [
+            "mi_idx",
+            "mi_idx",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_both",
+            false
+        ],
+        "10": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "11": [
+            "t",
+            "t",
+            "kt",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "12": [
+            "mi_idx",
+            "mi_idx",
+            "mi",
+            "mi",
+            "template_mi_idx_mi_both",
+            false
+        ],
+        "13": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "14": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "15": [
+            "x",
+            "mk_full",
+            "mi_idx",
+            "mi_idx",
+            "template_mk_mi_idx_r",
+            false
+        ],
+        "16": [
+            "t",
+            "t",
+            "mi_idx",
+            "mi_idx",
+            "template_t_mi_idx_both",
+            false
+        ],
+        "17": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "15-0": {
+        "1": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "9": [
+            "mc",
+            "mc",
+            "x",
+            "aka_t_full",
+            "template_mc_aka_t_l",
+            false
+        ],
+        "10": [
+            "mi",
+            "mi",
+            "x",
+            "aka_t_full",
+            "template_mi_aka_t_l",
+            false
+        ],
+        "12": [
+            "t",
+            "t",
+            "x",
+            "aka_t_full",
+            "template_t_aka_t_l",
+            false
+        ],
+        "13": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "14": [
+            "mc",
+            "mc",
+            "x",
+            "ct_full",
+            "template_mc_ct_l",
+            false
+        ],
+        "15": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "17": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "18": [
+            "x",
+            "mk_full",
+            "mc",
+            "mc",
+            "template_mk_mc_r",
+            false
+        ],
+        "19": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "20": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "21": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "22": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "16-0": {
+        "2": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "13": [
+            "t",
+            "t",
+            "x",
+            "ci_full",
+            "template_t_ci_l",
+            false
+        ],
+        "14": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "15": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "17": [
+            "t",
+            "t",
+            "x",
+            "mc_full",
+            "template_t_mc_l",
+            false
+        ],
+        "18": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "17-0": {
+        "1": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "9": [
+            "n",
+            "n",
+            "x",
+            "ci_full",
+            "template_n_ci_l",
+            false
+        ],
+        "11": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "12": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ]
+    },
+    "18-0": {
+        "0": [
+            "x",
+            "",
+            "ci",
+            "",
+            "template_ci",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "7": [
+            "x",
+            "mi_full",
+            "ci",
+            "ci",
+            "template_mi_ci_r",
+            false
+        ],
+        "8": [
+            "x",
+            "mi_idx_full",
+            "ci",
+            "ci",
+            "template_mi_idx_ci_r",
+            false
+        ],
+        "9": [
+            "n",
+            "n",
+            "ci",
+            "ci",
+            "template_n_ci_both",
+            false
+        ],
+        "10": [
+            "x",
+            "t_full",
+            "ci",
+            "ci",
+            "template_t_ci_r",
+            false
+        ],
+        "11": [
+            "x",
+            "mi_full",
+            "it_mi",
+            "it",
+            "template_mi_it_r",
+            false
+        ],
+        "12": [
+            "x",
+            "mi_idx_full",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_r",
+            false
+        ]
+    },
+    "19-0": {
+        "2": [
+            "x",
+            "",
+            "ci",
+            "",
+            "template_ci",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "rt",
+            "",
+            "template_rt",
+            true
+        ],
+        "9": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "10": [
+            "ci",
+            "ci",
+            "x",
+            "an_full",
+            "template_ci_an_l",
+            false
+        ],
+        "11": [
+            "n",
+            "n",
+            "x",
+            "an_full",
+            "template_n_an_l",
+            false
+        ],
+        "12": [
+            "ci",
+            "ci",
+            "x",
+            "chn_full",
+            "template_ci_chn_l",
+            false
+        ],
+        "13": [
+            "mc",
+            "mc",
+            "ci",
+            "ci",
+            "template_mc_ci_both",
+            false
+        ],
+        "14": [
+            "mi",
+            "mi",
+            "ci",
+            "ci",
+            "template_mi_ci_both",
+            false
+        ],
+        "15": [
+            "n",
+            "n",
+            "ci",
+            "ci",
+            "template_n_ci_both",
+            false
+        ],
+        "16": [
+            "rt",
+            "rt",
+            "ci",
+            "ci",
+            "template_rt_ci_both",
+            false
+        ],
+        "17": [
+            "t",
+            "t",
+            "ci",
+            "ci",
+            "template_t_ci_both",
+            false
+        ],
+        "18": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "19": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "20": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "21": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "22": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ]
+    },
+    "21-0": {
+        "0": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "ct",
+            "",
+            "template_ct",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "7": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "8": [
+            "mc",
+            "mc",
+            "ct",
+            "ct",
+            "template_mc_ct_both",
+            false
+        ],
+        "9": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "10": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "11": [
+            "x",
+            "mk_full",
+            "mc",
+            "mc",
+            "template_mk_mc_r",
+            false
+        ],
+        "12": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "13": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "14": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "15": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "22-0": {
+        "0": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "mi_idx",
+            "",
+            "template_mi_idx",
+            true
+        ],
+        "10": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "11": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "12": [
+            "mc",
+            "mc",
+            "x",
+            "ct_full",
+            "template_mc_ct_l",
+            false
+        ],
+        "13": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "14": [
+            "mi_idx",
+            "mi_idx",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_both",
+            false
+        ],
+        "15": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "16": [
+            "t",
+            "t",
+            "kt",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "17": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "18": [
+            "mi_idx",
+            "mi_idx",
+            "mc",
+            "mc",
+            "template_mi_idx_mc_both",
+            false
+        ],
+        "19": [
+            "x",
+            "mk_full",
+            "mc",
+            "mc",
+            "template_mk_mc_r",
+            false
+        ],
+        "20": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "21": [
+            "mi_idx",
+            "mi_idx",
+            "mi",
+            "mi",
+            "template_mi_idx_mi_both",
+            false
+        ],
+        "22": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "23": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "24": [
+            "x",
+            "mk_full",
+            "mi_idx",
+            "mi_idx",
+            "template_mk_mi_idx_r",
+            false
+        ],
+        "25": [
+            "t",
+            "t",
+            "mi_idx",
+            "mi_idx",
+            "template_t_mi_idx_both",
+            false
+        ],
+        "26": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "23-0": {
+        "1": [
+            "x",
+            "",
+            "cct",
+            "",
+            "template_cct",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "10": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "11": [
+            "cct",
+            "cct",
+            "x",
+            "cc_full",
+            "template_cct_cc_l",
+            false
+        ],
+        "13": [
+            "mi",
+            "mi",
+            "x",
+            "cc_full",
+            "template_mi_cc_l",
+            false
+        ],
+        "15": [
+            "t",
+            "t",
+            "x",
+            "cc_full",
+            "template_t_cc_l",
+            false
+        ],
+        "16": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "18": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "20": [
+            "t",
+            "t",
+            "kt",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "21": [
+            "mi",
+            "mi",
+            "x",
+            "mc_full",
+            "template_mi_mc_l",
+            false
+        ],
+        "23": [
+            "t",
+            "t",
+            "x",
+            "mc_full",
+            "template_t_mc_l",
+            false
+        ],
+        "24": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "25": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "26": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ],
+        "12": [
+            "x",
+            "mc_full",
+            "cct",
+            "cct_cc_l",
+            "template_mc_cc__cct",
+            false
+        ],
+        "17": [
+            "x",
+            "ct_full",
+            "cn",
+            "mc_cn_r",
+            "template_mc_ct__cn",
+            false
+        ]
+    },
+    "24-0": {
+        "2": [
+            "x",
+            "",
+            "ci",
+            "",
+            "template_ci",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "9": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "10": [
+            "x",
+            "",
+            "rt",
+            "",
+            "template_rt",
+            true
+        ],
+        "11": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "12": [
+            "ci",
+            "ci",
+            "x",
+            "an_full",
+            "template_ci_an_l",
+            false
+        ],
+        "13": [
+            "n",
+            "n",
+            "x",
+            "an_full",
+            "template_n_an_l",
+            false
+        ],
+        "14": [
+            "ci",
+            "ci",
+            "x",
+            "chn_full",
+            "template_ci_chn_l",
+            false
+        ],
+        "15": [
+            "x",
+            "mc_full",
+            "ci",
+            "ci",
+            "template_mc_ci_r",
+            false
+        ],
+        "16": [
+            "mi",
+            "mi",
+            "ci",
+            "ci",
+            "template_mi_ci_both",
+            false
+        ],
+        "17": [
+            "x",
+            "mk_full",
+            "ci",
+            "ci",
+            "template_mk_ci_r",
+            false
+        ],
+        "18": [
+            "n",
+            "n",
+            "ci",
+            "ci",
+            "template_n_ci_both",
+            false
+        ],
+        "19": [
+            "rt",
+            "rt",
+            "ci",
+            "ci",
+            "template_rt_ci_both",
+            false
+        ],
+        "20": [
+            "t",
+            "t",
+            "ci",
+            "ci",
+            "template_t_ci_both",
+            false
+        ],
+        "21": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "22": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "23": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "24": [
+            "mi",
+            "mi",
+            "x",
+            "mc_full",
+            "template_mi_mc_l",
+            false
+        ],
+        "26": [
+            "t",
+            "t",
+            "x",
+            "mc_full",
+            "template_t_mc_l",
+            false
+        ],
+        "27": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "28": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "29": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "25-0": {
+        "0": [
+            "x",
+            "",
+            "ci",
+            "",
+            "template_ci",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "9": [
+            "mi",
+            "mi",
+            "ci",
+            "ci",
+            "template_mi_ci_both",
+            false
+        ],
+        "10": [
+            "x",
+            "mi_idx_full",
+            "ci",
+            "ci",
+            "template_mi_idx_ci_r",
+            false
+        ],
+        "11": [
+            "x",
+            "mk_full",
+            "ci",
+            "ci",
+            "template_mk_ci_r",
+            false
+        ],
+        "12": [
+            "n",
+            "n",
+            "ci",
+            "ci",
+            "template_n_ci_both",
+            false
+        ],
+        "13": [
+            "x",
+            "t_full",
+            "ci",
+            "ci",
+            "template_t_ci_r",
+            false
+        ],
+        "14": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "15": [
+            "x",
+            "mi_idx_full",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_r",
+            false
+        ],
+        "16": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "17": [
+            "x",
+            "mi_idx_full",
+            "mi",
+            "mi",
+            "template_mi_idx_mi_r",
+            false
+        ],
+        "18": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "19": [
+            "x",
+            "t_full",
+            "mi",
+            "mi",
+            "template_t_mi_r",
+            false
+        ]
+    },
+    "26-0": {
+        "1": [
+            "x",
+            "",
+            "cct1",
+            "",
+            "template_cct1",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "cct2",
+            "",
+            "template_cct2",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "chn",
+            "",
+            "template_chn",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "mi_idx",
+            "",
+            "template_mi_idx",
+            true
+        ],
+        "11": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "12": [
+            "cct1",
+            "cct1",
+            "x",
+            "cc_full",
+            "template_cct1_cc_l",
+            false
+        ],
+        "13": [
+            "cct2",
+            "cct2",
+            "x",
+            "cc_full",
+            "template_cct2_cc_l",
+            false
+        ],
+        "15": [
+            "mi_idx",
+            "mi_idx",
+            "x",
+            "cc_full",
+            "template_mi_idx_cc_l",
+            false
+        ],
+        "17": [
+            "t",
+            "t",
+            "x",
+            "cc_full",
+            "template_t_cc_l",
+            false
+        ],
+        "18": [
+            "x",
+            "ci_full",
+            "chn",
+            "chn",
+            "template_ci_chn_r",
+            false
+        ],
+        "19": [
+            "mi_idx",
+            "mi_idx",
+            "x",
+            "ci_full",
+            "template_mi_idx_ci_l",
+            false
+        ],
+        "22": [
+            "t",
+            "t",
+            "x",
+            "ci_full",
+            "template_t_ci_l",
+            false
+        ],
+        "23": [
+            "mi_idx",
+            "mi_idx",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_both",
+            false
+        ],
+        "24": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "25": [
+            "t",
+            "t",
+            "kt",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "26": [
+            "x",
+            "mk_full",
+            "mi_idx",
+            "mi_idx",
+            "template_mk_mi_idx_r",
+            false
+        ],
+        "27": [
+            "t",
+            "t",
+            "mi_idx",
+            "mi_idx",
+            "template_t_mi_idx_both",
+            false
+        ],
+        "28": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "27-0": {
+        "1": [
+            "x",
+            "",
+            "cct1",
+            "",
+            "template_cct1",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "cct2",
+            "",
+            "template_cct2",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "ct",
+            "",
+            "template_ct",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "lt",
+            "",
+            "template_lt",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "11": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "12": [
+            "cct1",
+            "cct1",
+            "x",
+            "cc_full",
+            "template_cct1_cc_l",
+            false
+        ],
+        "13": [
+            "cct2",
+            "cct2",
+            "x",
+            "cc_full",
+            "template_cct2_cc_l",
+            false
+        ],
+        "14": [
+            "mc",
+            "mc",
+            "x",
+            "cc_full",
+            "template_mc_cc_l",
+            false
+        ],
+        "15": [
+            "mi",
+            "mi",
+            "x",
+            "cc_full",
+            "template_mi_cc_l",
+            false
+        ],
+        "18": [
+            "t",
+            "t",
+            "x",
+            "cc_full",
+            "template_t_cc_l",
+            false
+        ],
+        "19": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "20": [
+            "mc",
+            "mc",
+            "ct",
+            "ct",
+            "template_mc_ct_both",
+            false
+        ],
+        "21": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "22": [
+            "x",
+            "ml_full",
+            "lt",
+            "lt",
+            "template_ml_lt_r",
+            false
+        ],
+        "23": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "24": [
+            "x",
+            "mk_full",
+            "mc",
+            "mc",
+            "template_mk_mc_r",
+            false
+        ],
+        "25": [
+            "x",
+            "ml_full",
+            "mc",
+            "mc",
+            "template_ml_mc_r",
+            false
+        ],
+        "26": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "27": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "28": [
+            "x",
+            "ml_full",
+            "mi",
+            "mi",
+            "template_ml_mi_r",
+            false
+        ],
+        "29": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "31": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ],
+        "32": [
+            "t",
+            "t",
+            "x",
+            "ml_full",
+            "template_t_ml_l",
+            false
+        ]
+    },
+    "28-0": {
+        "1": [
+            "x",
+            "",
+            "cct1",
+            "",
+            "template_cct1",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "cct2",
+            "",
+            "template_cct2",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "7": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "8": [
+            "x",
+            "",
+            "kt",
+            "",
+            "template_kt",
+            true
+        ],
+        "9": [
+            "x",
+            "",
+            "mc",
+            "",
+            "template_mc",
+            true
+        ],
+        "10": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "11": [
+            "x",
+            "",
+            "mi_idx",
+            "",
+            "template_mi_idx",
+            true
+        ],
+        "13": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "14": [
+            "cct1",
+            "cct1",
+            "x",
+            "cc_full",
+            "template_cct1_cc_l",
+            false
+        ],
+        "15": [
+            "cct2",
+            "cct2",
+            "x",
+            "cc_full",
+            "template_cct2_cc_l",
+            false
+        ],
+        "16": [
+            "mc",
+            "mc",
+            "x",
+            "cc_full",
+            "template_mc_cc_l",
+            false
+        ],
+        "17": [
+            "mi",
+            "mi",
+            "x",
+            "cc_full",
+            "template_mi_cc_l",
+            false
+        ],
+        "18": [
+            "mi_idx",
+            "mi_idx",
+            "x",
+            "cc_full",
+            "template_mi_idx_cc_l",
+            false
+        ],
+        "20": [
+            "t",
+            "t",
+            "x",
+            "cc_full",
+            "template_t_cc_l",
+            false
+        ],
+        "21": [
+            "mc",
+            "mc",
+            "cn",
+            "cn",
+            "template_mc_cn_both",
+            false
+        ],
+        "22": [
+            "mc",
+            "mc",
+            "x",
+            "ct_full",
+            "template_mc_ct_l",
+            false
+        ],
+        "23": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "24": [
+            "mi_idx",
+            "mi_idx",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_both",
+            false
+        ],
+        "25": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "26": [
+            "t",
+            "t",
+            "kt",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "27": [
+            "mi",
+            "mi",
+            "mc",
+            "mc",
+            "template_mi_mc_both",
+            false
+        ],
+        "28": [
+            "mi_idx",
+            "mi_idx",
+            "mc",
+            "mc",
+            "template_mi_idx_mc_both",
+            false
+        ],
+        "29": [
+            "x",
+            "mk_full",
+            "mc",
+            "mc",
+            "template_mk_mc_r",
+            false
+        ],
+        "30": [
+            "t",
+            "t",
+            "mc",
+            "mc",
+            "template_t_mc_both",
+            false
+        ],
+        "31": [
+            "mi_idx",
+            "mi_idx",
+            "mi",
+            "mi",
+            "template_mi_idx_mi_both",
+            false
+        ],
+        "32": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "33": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "34": [
+            "x",
+            "mk_full",
+            "mi_idx",
+            "mi_idx",
+            "template_mk_mi_idx_r",
+            false
+        ],
+        "35": [
+            "t",
+            "t",
+            "mi_idx",
+            "mi_idx",
+            "template_t_mi_idx_both",
+            false
+        ],
+        "36": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "3-0": {
+        "0": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "t",
+            "",
+            "template_t",
+            true
+        ],
+        "4": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "5": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "6": [
+            "t",
+            "t",
+            "mi",
+            "mi",
+            "template_t_mi_both",
+            false
+        ],
+        "7": [
+            "t",
+            "t",
+            "x",
+            "mk_full",
+            "template_t_mk_l",
+            false
+        ]
+    },
+    "30-0": {
+        "12": [
+            "cct1",
+            "cct1",
+            "x",
+            "cc_full",
+            "template_cct1_cc_l",
+            false
+        ],
+        "13": [
+            "cct2",
+            "cct2",
+            "x",
+            "cc_full",
+            "template_cct2_cc_l",
+            false
+        ]
+    },
+    "31-0": {
+        "0": [
+            "x",
+            "",
+            "ci",
+            "",
+            "template_ci",
+            true
+        ],
+        "1": [
+            "x",
+            "",
+            "cn",
+            "",
+            "template_cn",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it_mi",
+            "",
+            "template_it",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "it_miidx",
+            "",
+            "template_it",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "mi",
+            "",
+            "template_mi",
+            true
+        ],
+        "9": [
+            "x",
+            "",
+            "n",
+            "",
+            "template_n",
+            true
+        ],
+        "11": [
+            "x",
+            "mc_full",
+            "ci",
+            "ci",
+            "template_mc_ci_r",
+            false
+        ],
+        "12": [
+            "mi",
+            "mi",
+            "ci",
+            "ci",
+            "template_mi_ci_both",
+            false
+        ],
+        "13": [
+            "x",
+            "mi_idx_full",
+            "ci",
+            "ci",
+            "template_mi_idx_ci_r",
+            false
+        ],
+        "14": [
+            "x",
+            "mk_full",
+            "ci",
+            "ci",
+            "template_mk_ci_r",
+            false
+        ],
+        "15": [
+            "n",
+            "n",
+            "ci",
+            "ci",
+            "template_n_ci_both",
+            false
+        ],
+        "16": [
+            "x",
+            "t_full",
+            "ci",
+            "ci",
+            "template_t_ci_r",
+            false
+        ],
+        "17": [
+            "x",
+            "mc_full",
+            "cn",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "18": [
+            "mi",
+            "mi",
+            "it_mi",
+            "it",
+            "template_mi_it_both",
+            false
+        ],
+        "19": [
+            "x",
+            "mi_idx_full",
+            "it_miidx",
+            "it",
+            "template_mi_idx_it_r",
+            false
+        ],
+        "20": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ],
+        "21": [
+            "mi",
+            "mi",
+            "x",
+            "mc_full",
+            "template_mi_mc_l",
+            false
+        ],
+        "25": [
+            "x",
+            "mi_idx_full",
+            "mi",
+            "mi",
+            "template_mi_idx_mi_r",
+            false
+        ],
+        "26": [
+            "x",
+            "mk_full",
+            "mi",
+            "mi",
+            "template_mk_mi_r",
+            false
+        ],
+        "27": [
+            "x",
+            "t_full",
+            "mi",
+            "mi",
+            "template_t_mi_r",
+            false
+        ]
+    },
+    "32-0": {
+        "0": [
+            "x",
+            "",
+            "k",
+            "",
+            "template_k",
+            true
+        ],
+        "6": [
+            "x",
+            "mk_full",
+            "k",
+            "k",
+            "template_mk_k_r",
+            false
+        ]
+    },
+    "33-0": {
+        "0": [
+            "x",
+            "",
+            "cn1",
+            "",
+            "template_cn",
+            true
+        ],
+        "2": [
+            "x",
+            "",
+            "it1",
+            "",
+            "template_it",
+            true
+        ],
+        "3": [
+            "x",
+            "",
+            "it2",
+            "",
+            "template_it",
+            true
+        ],
+        "4": [
+            "x",
+            "",
+            "kt1",
+            "",
+            "template_kt",
+            true
+        ],
+        "5": [
+            "x",
+            "",
+            "kt2",
+            "",
+            "template_kt",
+            true
+        ],
+        "6": [
+            "x",
+            "",
+            "lt",
+            "",
+            "template_lt",
+            true
+        ],
+        "10": [
+            "x",
+            "",
+            "mi_idx2",
+            "",
+            "template_mi_idx",
+            true
+        ],
+        "13": [
+            "x",
+            "",
+            "t2",
+            "",
+            "template_t",
+            true
+        ],
+        "14": [
+            "x",
+            "mc_full",
+            "cn1",
+            "cn",
+            "template_mc_cn_r",
+            false
+        ],
+        "16": [
+            "x",
+            "mi_idx_full",
+            "it1",
+            "it",
+            "template_mi_idx_it_r",
+            false
+        ],
+        "17": [
+            "mi_idx2",
+            "mi_idx",
+            "it2",
+            "it",
+            "template_mi_idx_it_both",
+            false
+        ],
+        "18": [
+            "x",
+            "t_full",
+            "kt1",
+            "kt",
+            "template_t_kt_r",
+            false
+        ],
+        "19": [
+            "t2",
+            "t",
+            "kt2",
+            "kt",
+            "template_t_kt_both",
+            false
+        ],
+        "20": [
+            "x",
+            "ml_full",
+            "lt",
+            "lt",
+            "template_ml_lt_r",
+            false
+        ],
+        "24": [
+            "mi_idx2",
+            "mi_idx",
+            "x",
+            "mc_full",
+            "template_mi_idx_mc_l",
+            false
+        ],
+        "26": [
+            "t2",
+            "t",
+            "x",
+            "mc_full",
+            "template_t_mc_l",
+            false
+        ],
+        "29": [
+            "x",
+            "ml_full",
+            "mi_idx2",
+            "mi_idx",
+            "template_ml_mi_idx_r",
+            false
+        ],
+        "30": [
+            "t2",
+            "t",
+            "mi_idx2",
+            "mi_idx",
+            "template_t_mi_idx_both",
+            false
+        ],
+        "32": [
+            "t2",
+            "t",
+            "x",
+            "ml_full",
+            "template_t_ml_l",
+            false
+        ]
     }
 }
