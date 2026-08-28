@@ -1,7 +1,6 @@
-import numpy as np
 import os
+
 import psycopg2
-import subprocess
 
 from psql_explain_decoder import *
 
@@ -114,9 +113,9 @@ def get_plan_cost_simple(cursor, sql, hint=None, debug=None, explain=None):
 
 def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
     global cost, to_execute_, query_plan, join_order, scan_mtd
-    os.system("cp ./cardinality/join.txt /winhomes/hx68/imdbloadbase")
-    os.system("cp ./cardinality/new_single.txt /winhomes/hx68/imdbloadbase")
-    os.system("cp ./cardinality/pointers.txt /winhomes/hx68/imdbloadbase")
+    # os.system("cp ./cardinality/join.txt /winhomes/hx68/imdbloadbase")
+    # os.system("cp ./cardinality/new_single.txt /winhomes/hx68/imdbloadbase")
+    # os.system("cp ./cardinality/pointers.txt /winhomes/hx68/imdbloadbase")
     cursor.execute("DISCARD ALL;")
     cursor.execute("SET enable_material=off;")
     # cursor.execute('SET top_n = 0')
@@ -129,8 +128,8 @@ def get_plan_cost(cursor, sql, hint=None, debug=None, explain=None, plan=False):
     cursor.execute("SET join_est_no=0;")
     cursor.execute("SET ml_joinest_fname='join.txt';")
 
-    os.system("rm /winhomes/hx68/imdbloadbase/join_est_record_job.txt")
-    os.system("rm /winhomes/hx68/imdbloadbase/single_tbl_est_record.txt")
+    # os.system("rm /winhomes/hx68/imdbloadbase/join_est_record_job.txt")
+    # os.system("rm /winhomes/hx68/imdbloadbase/single_tbl_est_record.txt")
     cursor.execute("SET print_single_tbl_queries=true;")
     cursor.execute("SET print_sub_queries=true;")
 
