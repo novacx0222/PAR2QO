@@ -502,7 +502,7 @@ def parse_query(sql, q, t, split=None, instance=None):
                 continue
 
             join_key = f"{inner_table}_{outer_table}_{join_type}"
-            # if join_key in ["n_an_both", "pi_n_both"]: continue
+            if join_key in ["n_an_both", "pi_n_both"]: continue
             params.append("template_" + join_key)
             params.append(False)
             result_dict[int(dim)] = join_key + ".txt"
