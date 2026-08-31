@@ -472,19 +472,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--source-root",
         type=Path,
-        default=Path("/opt/sqls/imdb-separate-ep-0826"),
+        default=Path("/data/robdp/imdb-separate-ep-0826"),
         help="root containing folds/robdp_fold_N.csv",
     )
     parser.add_argument(
         "--reference-root",
         type=Path,
-        default=Path("/opt/sqls/imdb-error-profile-0612"),
+        default=Path("/data/robdp/imdb-error-profile-0826"),
         help="reference cardinality workload containing testing JSON/TXT",
     )
     parser.add_argument(
         "--output-prefix",
         type=Path,
-        default=Path("/opt/sqls/imdb-separate-ep-0826"),
+        default=Path("/data/robdp/imdb-separate-ep-0826"),
         help="PREFIX creates PREFIX-1 and PREFIX-2",
     )
     parser.add_argument("--folds", type=int, nargs="+", default=[1, 2])

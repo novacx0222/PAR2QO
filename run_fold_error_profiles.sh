@@ -20,7 +20,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMAND="${1:-help}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 SOURCE_ROOT="${SOURCE_ROOT:-/data/robdp/imdb-separate-ep-0826}"
-REFERENCE_ROOT="${REFERENCE_ROOT:-/data/robdp/imdb-error-profile-0612}"
+REFERENCE_ROOT="${REFERENCE_ROOT:-/data/robdp/imdb-error-profile-0826}"
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-/data/robdp/imdb-separate-ep-0826}"
 SAMPLE_SIZE="${SAMPLE_SIZE:-50}"
 FOLDS="${FOLDS:-1 2}"
@@ -146,3 +146,29 @@ case "${COMMAND}" in
     exit 2
     ;;
 esac
+
+#cd /data/robdp/PAR2QO
+#
+#for q in 7 14 19 21 30; do
+#  echo "===== Refresh metadata: ${q}-0 ====="
+#
+#  REFRESH_METADATA=1 \
+#  FOLDS="1 2" \
+#  WORKLOAD="${q}-0_cardinality" \
+#  PGHOST=/tmp \
+#  PGPORT=5432 \
+#  PGDATABASE=imdbloadbase \
+#  PGUSER=hx68 \
+#  ./run_fold_error_profiles.sh metadata || exit 1
+#done
+
+
+#for q in 7 14 19 21 30; do
+#  FOLDS="1 2" \
+#  WORKLOAD="${q}-0_cardinality" \
+#  PGHOST=/tmp \
+#  PGPORT=5432 \
+#  PGDATABASE=imdbloadbase \
+#  PGUSER=hx68 \
+#  ./run_fold_error_profiles.sh profiles || exit 1
+#done
